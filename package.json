@@ -1,1 +1,24 @@
-
+{
+  "name": "cluedo-js",
+  "version": "1.0.0",
+  "description": "A JavaScript implementation of Cluedo",
+  "main": "server.js",
+  "scripts": {
+    "test": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tmksn/cluedo-js.git"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/tmksn/cluedo-js/issues"
+  },
+  "homepage": "https://github.com/tmksn/cluedo-js#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "nodemon": "^1.12.1"
+  }
+}
