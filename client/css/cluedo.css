@@ -1,0 +1,18 @@
+/* Web page background settings */
+body { background-color: seagreen; }
+
+/* Common font settings */
+body { font: normal 100%; font-family: Georgia, serif; overflow: hidden; padding: 0 1em; max-width: 40em; margin: auto;}
+
+/* Main title settings */
+h1 { font-size: 300%; font-weight: normal; color: seashell; margin: 1em 0 0 0; text-align: center; }
+h1 a { color: seashell; text-decoration: none; }
+
+/* Title subheading settings */
+h2 { font-size: 150%; font-weight: normal; color: seashell; margin: 1em 0 0 0; text-align: center; }
+h2 a { color: seashell; text-decoration: none; }
+
+/* Menu list settings */
+ul { font-size: 150%; font-weight: normal; color: seashell; margin: 0.5em 0 0 0; list-style-type: none; }
+ul a { color: seashell; text-decoration: none; }
+li { padding-left: 6em; padding-top: 1em; }
