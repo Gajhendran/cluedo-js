@@ -29,6 +29,8 @@ function setup() {
     board[i] = new Array(19);
   }
   
+  flush_board(board, 200);
+  
 }
 
 function draw() {
@@ -38,8 +40,7 @@ function draw() {
 function draw_grid(grid_array, grid_rows, grid_columns) {
   for (var i = 0; i < grid_columns; i++) {
     for (var j = 0; j < grid_rows; j++) {
-      if ((grid_array[i][j] <= 255)) fill(grid_array[i][j]);
-      else fill(255);
+      fill(grid_array[i][j]);
       stroke(0);
       rect(i * w, j * w, w - 1, w - 1);
     }
@@ -52,4 +53,12 @@ function mousePressed() {
   board_x_sel = Math.floor(cursor_x_pos / 480 * 20);
   board_y_sel = Math.floor(cursor_y_pos / 480 * 20);
   board[board_x_sel][board_y_sel] = 0;
+}
+
+function flush_board(board, value) {
+  for (var i = 0; i < 20; i++) {
+    for (var j = 0; j < 20; j++) {
+      board[i][j] = value;
+    }
+  }
 }
