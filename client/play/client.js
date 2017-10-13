@@ -20,10 +20,15 @@ function setup() {
   columns = floor(width / w);
   rows = floor(height / w);
   // Create game board array
-  // 19x19 for game board, 19x20 for player hold
+  // first dimension - x, second dimension - y, third dimension - meta and prime
   board = new Array(20);
   for (var i = 0; i < 20; i++) {
     board[i] = new Array(19);
+  }
+  for (var i = 0; i < 20; i++) {
+    for (var j = 0; j < 20; j++) {
+      board[i][j] = new Array(2);
+    }
   }
   flush_board(board, 255);
 }
@@ -35,7 +40,7 @@ function draw() {
 function draw_grid(grid_array, grid_rows, grid_columns) {
   for (var i = 0; i < grid_columns; i++) {
     for (var j = 0; j < grid_rows; j++) {
-      fill(grid_array[i][j]);
+      fill(grid_array[i][j][1]);
       stroke(0);
       rect(i * w, j * w, w - 1, w - 1);
     }
@@ -55,17 +60,17 @@ function mousePressed() {
 function flush_board(board, value) {
   for (var i = 0; i < 20; i++) {
     for (var j = 0; j < 20; j++) {
-      board[i][j] = value;
+      board[i][j][0] = 0;
+      board[i][j][1] = value;
     }
   }
 }
 
 
 function move_character(character, board, x, y) {
-  // swap around values
-  board[character.x][character.y] = 255;
-  board[x][y] = character.c;
-  // set new position
+  vacate(board, character);
+  board[x][y][0] = 3;
+  board[x][y][1] = character.c;
   character.x = x
   character.y = y
 }
@@ -77,4 +82,9 @@ function cursor_inside(x1, y1, x2, y2) {
   } else {
     return false;
   }
+}
+
+function vacate(board, character) {
+  board[character.x][character.y][0] = 0;
+  board[character.x][character.y][1] = 255;
 }
