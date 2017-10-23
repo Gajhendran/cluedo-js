@@ -1,11 +1,8 @@
 var cols = 10;
 var rows = 10;
-var w, h;
 var board = new Array(cols);
-var start = undefined;
-var end = undefined;
 
-
+// Cell object
 function Cell(i, j) {
     // Cell position
     this.i = i;
@@ -23,7 +20,7 @@ function Cell(i, j) {
         if (this.obstacle == true) {
             fill(0);
         }
-        rect(this.i * w, this.j * h, w -1, h - 1);
+        rect(this.i * (width / cols), this.j * (height / rows), (width / cols) - 1, (height / rows) - 1);
     }
     this.pathInit = function() {
         this.n = [];
@@ -31,13 +28,13 @@ function Cell(i, j) {
             this.n.push(board[this.i + 1][j])
         }
         if (this.i > 0) {
-        this.n.push(board[this.i - 1][j])
+            this.n.push(board[this.i - 1][j])
         }
         if (this.j < rows - 1) {
-        this.n.push(board[this.i][j + 1])
+            this.n.push(board[this.i][j + 1])
         }
         if (this.j > 0) {
-        this.n.push(board[this.i][j - 1])
+            this.n.push(board[this.i][j - 1])
         }
         this.f = 0;
         this.g = 0;
@@ -46,30 +43,23 @@ function Cell(i, j) {
 }
 
 function setup() {
+    console.log("Starting client.js")
     createCanvas(480, 480);
-    w = width / cols;
-    h = height / rows;
-    console.log('A*');
-    
     // Making a 2D array
     for (var i = 0; i < cols; i++) {
         board[i] = new Array(rows);
     }
-    
+    // Creating cell objects
     for (var i = 0; i < cols; i++) {
         for (var j = 0; j < rows; j++) {
             board[i][j] = new Cell(i, j);
         }
     }
-    
-    start = board[0][0];
-    end = board[cols - 1][rows - 1];
-    console.log(board);
-    
+    console.log("Setup complete")
 }
 
 function draw() {
-    background(0);
+    // Tell each cell to show itself
     for (var i = 0; i < cols; i++) {
         for (var j = 0; j < rows; j++) {
             board[i][j].show();
@@ -78,6 +68,7 @@ function draw() {
 }
 
 function path(start, end) {
+    // Initialise pathfinding variables
     for (var i = 0; i < cols; i++) {
         for (var j = 0; j < rows; j++) {
             board[i][j].pathInit();
@@ -95,8 +86,8 @@ function path(start, end) {
         }
         var current = openSet[lowestIndex];
         if (openSet[lowestIndex] == end) {
-            console.log('Done.');
-            console.log(openSet[lowestIndex].f);
+            console.log("Shortest path found from (" + start.i + ", " + start.j + ") to (" + end.i + ", " + end.j + "), length " + openSet[lowestIndex].f);
+            return openSet[lowestIndex].f;
         }
         removeFromArray(openSet, current);
         closedSet.push(current);
@@ -119,23 +110,23 @@ function path(start, end) {
             }
         }
     }
-    // No solution, return high number to say it's not possible
+    // No solution
     return 100;
 }
 
 function keyPressed() {
     if (keyCode == LEFT_ARROW) {
-        path(start, end);
+        path(board[0][0], board[9][9]);
     }
     if (keyCode == RIGHT_ARROW) {
         path(board[0][9], board[9][0]);
     }
 }
 
-function removeFromArray (arr, elt) {
-    for (var i = arr.length - 1; i >= 0; i--) {
-        if (arr[i] == elt) {
-            arr.splice(i, 1);
+function removeFromArray (array, item) {
+    for (var i = array.length - 1; i >= 0; i--) {
+        if (array[i] == item) {
+            array.splice(i, 1);
         }
     }
 }
