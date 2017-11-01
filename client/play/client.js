@@ -1,6 +1,8 @@
 var cols = 10;
 var rows = 10;
 var board = new Array(cols);
+var items = 1;
+var hold = new Array(items);
 
 // Cell object
 function Cell(i, j) {
@@ -14,13 +16,29 @@ function Cell(i, j) {
     this.n = [];
     // Not an obstacle be default
     this.obstacle = false;
+    
+    // Random obstacles for testing
+    if (0.4 > random()) {
+        this.obstacle = true;
+    }
+    
+    if (this.i == 0 && this.j == 0) {
+        this.obstacle = false;
+    }
+    
+    this.hold = -1;
+    
     this.show = function() {
         fill(255);
         stroke(0);
         if (this.obstacle == true) {
             fill(0);
         }
-        rect(this.i * (width / cols), this.j * (height / rows), (width / cols) - 1, (height / rows) - 1);
+        if (this.hold == -1) {
+            rect(this.i * (width / cols), this.j * (height / rows), (width / cols) - 1, (height / rows) - 1);
+        } else {
+            hold[this.hold].show();
+        }
     }
     this.pathInit = function() {
         this.n = [];
@@ -42,6 +60,17 @@ function Cell(i, j) {
     }
 }
 
+function Item(i, j) {
+    this.i = i;
+    this.j = j;
+    
+    this.show = function() {
+        fill(0, 255, 0);
+        stroke(0);
+        rect(this.i * (width / cols), this.j * (height / rows), (width / cols) - 1, (height / rows) - 1);
+    }
+}
+
 function setup() {
     console.log("Starting client.js")
     createCanvas(480, 480);
@@ -55,6 +84,10 @@ function setup() {
             board[i][j] = new Cell(i, j);
         }
     }
+    
+    hold[0] = new Item(0, 0);
+    board[0][0].hold = 0;
+    console.log(hold);
     console.log("Setup complete")
 }
 
@@ -91,7 +124,6 @@ function path(start, end) {
         }
         removeFromArray(openSet, current);
         closedSet.push(current);
-        
         var neighbours = current.n;
         for (var i = 0; i < neighbours.length; i++) {
             var neighbour = neighbours[i];
@@ -111,16 +143,8 @@ function path(start, end) {
         }
     }
     // No solution
+    console.log("No path found.")
     return 100;
-}
-
-function keyPressed() {
-    if (keyCode == LEFT_ARROW) {
-        path(board[0][0], board[9][9]);
-    }
-    if (keyCode == RIGHT_ARROW) {
-        path(board[0][9], board[9][0]);
-    }
 }
 
 function removeFromArray (array, item) {
@@ -139,6 +163,11 @@ function mousePressed() {
     if (mouseX < 480 && mouseY < 480) {
         var x = Math.floor(mouseX / 480 * cols);
         var y = Math.floor(mouseY / 480 * rows);
-        board[x][y].obstacle = true;
+        if ( path(board[hold[0].i][hold[0].j] , board[x][y]) <= 6 && board[x][y].obstacle == false) {
+            board[hold[0].i][hold[0].j].hold = -1
+            hold[0].i = x
+            hold[0].j = y
+            board[x][y].hold = 0
+        }
     }   
 }
