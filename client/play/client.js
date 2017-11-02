@@ -1,3 +1,4 @@
+// Variables that must persist throught program
 var cols = 20;
 var rows = 20;
 var board = new Array(cols);
@@ -5,6 +6,7 @@ var characters = 1;
 var hold = new Array(characters);
 var canvas = undefined;
 var rollValue = 6;
+var currentCharacter = 0;
 
 // Cell object
 function Cell(i, j) {
@@ -37,6 +39,7 @@ function Cell(i, j) {
             fill(0);
         }
         if (this.hold == -1) {
+            strokeWeight(0.5);
             rect(this.i * (width / cols), this.j * (height / rows), (width / cols) - 1, (height / rows) - 1);
         } else {
             hold[this.hold].show();
@@ -89,7 +92,7 @@ function setup() {
     
     hold[0] = new Item(0, 0);
     board[0][0].hold = 0;
-    console.log(hold);
+
     console.log("Setup complete")
 }
 
@@ -105,12 +108,12 @@ function draw() {
     if (mouseX < 480 && mouseY < 480) {
         var x = Math.floor(mouseX / 480 * cols);
         var y = Math.floor(mouseY / 480 * rows);
-        if ( path(board[hold[0].i][hold[0].j] , board[x][y]) > rollValue && board[x][y].obstacle == false) {
+        if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) > rollValue && board[x][y].obstacle == false) {
             fill(255, 0, 0, 72);
             stroke(0);
             rect(x * (width / cols), y * (height / rows), (width / cols) - 1, (height / rows) - 1);
         } 
-        if ( path(board[hold[0].i][hold[0].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
+        if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
             fill(0, 255, 0, 72);
             stroke(0);
             rect(x * (width / cols), y * (height / rows), (width / cols) - 1, (height / rows) - 1);
@@ -138,7 +141,7 @@ function path(start, end) {
         }
         var current = openSet[lowestIndex];
         if (openSet[lowestIndex] == end) {
-            console.log("Shortest path found from (" + start.i + ", " + start.j + ") to (" + end.i + ", " + end.j + "), length " + openSet[lowestIndex].f);
+            // console.log("Shortest path found from (" + start.i + ", " + start.j + ") to (" + end.i + ", " + end.j + "), length " + openSet[lowestIndex].f);
             return openSet[lowestIndex].f;
         }
         removeFromArray(openSet, current);
@@ -162,11 +165,12 @@ function path(start, end) {
         }
     }
     // No solution
-    console.log("No path found.")
+    // console.log("No path found.")
     return 100;
 }
 
 function removeFromArray (array, item) {
+    // Go backwards through array, remove any items that are the same of the item passed
     for (var i = array.length - 1; i >= 0; i--) {
         if (array[i] == item) {
             array.splice(i, 1);
@@ -175,22 +179,28 @@ function removeFromArray (array, item) {
 }
 
 function heuristic (a, b) {
+    // Manhattan heuristic
     return abs(a.i-b.i) + abs(a.j-a.j);
 }
 
 function mousePressed() {
     if (mouseX < 480 && mouseY < 480) {
+        // Calculate the x-pos and y-pos of the mouse with respect to the grid
         var x = Math.floor(mouseX / 480 * cols);
         var y = Math.floor(mouseY / 480 * rows);
-        if ( path(board[hold[0].i][hold[0].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
+        // If path short enough with respect to roll value and destination not an obstacle, move item
+        if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
             moveItem(0, x, y);
         }
     }   
 }
 
 function moveItem(index, x, y) {
+    // Empty the cell holding bay
     board[hold[index].i][hold[index].j].hold = -1;
+    // Change the x-pos and y-pos of the item
     hold[index].i = x;
     hold[index].j = y;
+    // Place the item in the new cell holding bay
     board[x][y].hold = index;
 }
