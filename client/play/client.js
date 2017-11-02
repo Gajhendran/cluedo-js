@@ -1,8 +1,10 @@
-var cols = 10;
-var rows = 10;
+var cols = 20;
+var rows = 20;
 var board = new Array(cols);
 var characters = 1;
 var hold = new Array(characters);
+var canvas = undefined;
+var rollValue = 6;
 
 // Cell object
 function Cell(i, j) {
@@ -73,7 +75,7 @@ function Item(i, j) {
 
 function setup() {
     console.log("Starting client.js")
-    createCanvas(480, 480);
+    canvas = createCanvas(480, 480);
     // Making a 2D array
     for (var i = 0; i < cols; i++) {
         board[i] = new Array(rows);
@@ -98,6 +100,23 @@ function draw() {
             board[i][j].show();
         }
     }
+    
+    // Highlight where the player can go
+    if (mouseX < 480 && mouseY < 480) {
+        var x = Math.floor(mouseX / 480 * cols);
+        var y = Math.floor(mouseY / 480 * rows);
+        if ( path(board[hold[0].i][hold[0].j] , board[x][y]) > rollValue && board[x][y].obstacle == false) {
+            fill(255, 0, 0, 72);
+            stroke(0);
+            rect(x * (width / cols), y * (height / rows), (width / cols) - 1, (height / rows) - 1);
+        } 
+        if ( path(board[hold[0].i][hold[0].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
+            fill(0, 255, 0, 72);
+            stroke(0);
+            rect(x * (width / cols), y * (height / rows), (width / cols) - 1, (height / rows) - 1);
+        }
+    }  
+    
 }
 
 function path(start, end) {
@@ -163,7 +182,7 @@ function mousePressed() {
     if (mouseX < 480 && mouseY < 480) {
         var x = Math.floor(mouseX / 480 * cols);
         var y = Math.floor(mouseY / 480 * rows);
-        if ( path(board[hold[0].i][hold[0].j] , board[x][y]) <= 6 && board[x][y].obstacle == false) {
+        if ( path(board[hold[0].i][hold[0].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
             moveItem(0, x, y);
         }
     }   
