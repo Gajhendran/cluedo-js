@@ -1,8 +1,8 @@
 var cols = 10;
 var rows = 10;
 var board = new Array(cols);
-var items = 1;
-var hold = new Array(items);
+var characters = 1;
+var hold = new Array(characters);
 
 // Cell object
 function Cell(i, j) {
@@ -164,10 +164,14 @@ function mousePressed() {
         var x = Math.floor(mouseX / 480 * cols);
         var y = Math.floor(mouseY / 480 * rows);
         if ( path(board[hold[0].i][hold[0].j] , board[x][y]) <= 6 && board[x][y].obstacle == false) {
-            board[hold[0].i][hold[0].j].hold = -1
-            hold[0].i = x
-            hold[0].j = y
-            board[x][y].hold = 0
+            moveItem(0, x, y);
         }
     }   
+}
+
+function moveItem(index, x, y) {
+    board[hold[index].i][hold[index].j].hold = -1;
+    hold[index].i = x;
+    hold[index].j = y;
+    board[x][y].hold = index;
 }
