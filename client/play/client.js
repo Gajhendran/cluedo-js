@@ -1,10 +1,18 @@
 // Variables that must persist throught program
-var cols = 20;
-var rows = 20;
+
+var canvas = undefined;
+const canvasWidth = 480;
+const canvasHeight = 480;
+
+const cols = 20;
+const rows = 20;
 var board = new Array(cols);
+var gridGraphics = undefined;
+const gridWidth = 480;
+const gridHeight = 480;
+
 var characters = 1;
 var hold = new Array(characters);
-var canvas = undefined;
 var rollValue = 6;
 var currentCharacter = 0;
 
@@ -40,7 +48,7 @@ function Cell(i, j) {
         }
         if (this.hold == -1) {
             strokeWeight(0.5);
-            rect(this.i * (width / cols), this.j * (height / rows), (width / cols) - 1, (height / rows) - 1);
+            rect(this.i * (gridWidth / cols), this.j * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
         } else {
             hold[this.hold].show();
         }
@@ -72,13 +80,18 @@ function Item(i, j) {
     this.show = function() {
         fill(0, 255, 0);
         stroke(0);
-        rect(this.i * (width / cols), this.j * (height / rows), (width / cols) - 1, (height / rows) - 1);
+        rect(this.i * (gridWidth / cols), this.j * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
     }
 }
 
 function setup() {
+    
     console.log("Starting client.js")
-    canvas = createCanvas(480, 480);
+    
+    // Init graphic canvas and buffers
+    canvas = createCanvas(canvasWidth, canvasHeight);
+    gridGraphics = createGraphics(gridWidth, gridHeight);
+    
     // Making a 2D array
     for (var i = 0; i < cols; i++) {
         board[i] = new Array(rows);
@@ -109,16 +122,18 @@ function draw() {
         var x = Math.floor(mouseX / 480 * cols);
         var y = Math.floor(mouseY / 480 * rows);
         if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) > rollValue && board[x][y].obstacle == false) {
-            fill(255, 0, 0, 72);
-            stroke(0);
-            rect(x * (width / cols), y * (height / rows), (width / cols) - 1, (height / rows) - 1);
+            gridGraphics.fill(255, 0, 0, 72);
+            gridGraphics.stroke(0);
+            gridGraphics.rect(x * (gridWidth / cols), y * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
         } 
         if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
-            fill(0, 255, 0, 72);
-            stroke(0);
-            rect(x * (width / cols), y * (height / rows), (width / cols) - 1, (height / rows) - 1);
+            gridGraphics.fill(0, 255, 0, 72);
+            gridGraphics.stroke(0);
+            gridGraphics.rect(x * (gridWidth / cols), y * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
         }
     }  
+    
+    image(gridGraphics, 0, 0);
     
 }
 
