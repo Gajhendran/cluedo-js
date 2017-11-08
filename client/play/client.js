@@ -30,7 +30,7 @@ function Cell(i, j) {
     this.obstacle = false;
     
     // Random obstacles for testing
-    if (0.4 > random()) {
+    if (0.3 > random()) {
         this.obstacle = true;
     }
     
@@ -41,14 +41,14 @@ function Cell(i, j) {
     this.hold = -1;
     
     this.show = function() {
-        fill(255);
-        stroke(0);
+        gridGraphics.fill(255);
+        gridGraphics.stroke(0);
         if (this.obstacle == true) {
-            fill(0);
+            gridGraphics.fill(0);
         }
         if (this.hold == -1) {
-            strokeWeight(0.5);
-            rect(this.i * (gridWidth / cols), this.j * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
+            gridGraphics.strokeWeight(0.5);
+            gridGraphics.rect(this.i * (gridWidth / cols), this.j * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
         } else {
             hold[this.hold].show();
         }
@@ -78,9 +78,9 @@ function Item(i, j) {
     this.j = j;
     
     this.show = function() {
-        fill(0, 255, 0);
-        stroke(0);
-        rect(this.i * (gridWidth / cols), this.j * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
+        gridGraphics.fill(0, 255, 0);
+        gridGraphics.stroke(0);
+        gridGraphics.rect(this.i * (gridWidth / cols), this.j * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
     }
 }
 
