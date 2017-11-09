@@ -1,15 +1,15 @@
 // Variables that must persist throught program
 
 var canvas = undefined;
-const canvasWidth = 480;
-const canvasHeight = 480;
+const CANVAS_WIDTH = 480;
+const CANVAS_HEIGHT = 480;
 
-const cols = 20;
-const rows = 20;
-var board = new Array(cols);
+const COLS = 20;
+const ROWS = 20;
+var board = new Array(COLS);
 var gridGraphics = undefined;
-const gridWidth = 480;
-const gridHeight = 480;
+const GRID_WIDTH = 480;
+const GRID_HEIGHT = 480;
 
 var characters = 1;
 var hold = new Array(characters);
@@ -48,20 +48,20 @@ function Cell(i, j) {
         }
         if (this.hold == -1) {
             gridGraphics.strokeWeight(0.5);
-            gridGraphics.rect(this.i * (gridWidth / cols), this.j * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
+            gridGraphics.rect(this.i * (GRID_WIDTH / COLS), this.j * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
         } else {
             hold[this.hold].show();
         }
     }
     this.pathInit = function() {
         this.n = [];
-        if (this.i < cols - 1) {
+        if (this.i < COLS - 1) {
             this.n.push(board[this.i + 1][j])
         }
         if (this.i > 0) {
             this.n.push(board[this.i - 1][j])
         }
-        if (this.j < rows - 1) {
+        if (this.j < ROWS - 1) {
             this.n.push(board[this.i][j + 1])
         }
         if (this.j > 0) {
@@ -80,7 +80,7 @@ function Item(i, j) {
     this.show = function() {
         gridGraphics.fill(0, 255, 0);
         gridGraphics.stroke(0);
-        gridGraphics.rect(this.i * (gridWidth / cols), this.j * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
+        gridGraphics.rect(this.i * (GRID_WIDTH / COLS), this.j * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
     }
 }
 
@@ -89,16 +89,16 @@ function setup() {
     console.log("Starting client.js")
     
     // Init graphic canvas and buffers
-    canvas = createCanvas(canvasWidth, canvasHeight);
-    gridGraphics = createGraphics(gridWidth, gridHeight);
+    canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+    gridGraphics = createGraphics(GRID_WIDTH, GRID_HEIGHT);
     
     // Making a 2D array
-    for (var i = 0; i < cols; i++) {
-        board[i] = new Array(rows);
+    for (var i = 0; i < COLS; i++) {
+        board[i] = new Array(ROWS);
     }
     // Creating cell objects
-    for (var i = 0; i < cols; i++) {
-        for (var j = 0; j < rows; j++) {
+    for (var i = 0; i < COLS; i++) {
+        for (var j = 0; j < ROWS; j++) {
             board[i][j] = new Cell(i, j);
         }
     }
@@ -111,25 +111,25 @@ function setup() {
 
 function draw() {
     // Tell each cell to show itself
-    for (var i = 0; i < cols; i++) {
-        for (var j = 0; j < rows; j++) {
+    for (var i = 0; i < COLS; i++) {
+        for (var j = 0; j < ROWS; j++) {
             board[i][j].show();
         }
     }
     
     // Highlight where the player can go
     if (mouseX < 480 && mouseY < 480) {
-        var x = Math.floor(mouseX / 480 * cols);
-        var y = Math.floor(mouseY / 480 * rows);
+        var x = Math.floor(mouseX / 480 * COLS);
+        var y = Math.floor(mouseY / 480 * ROWS);
         if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) > rollValue && board[x][y].obstacle == false) {
             gridGraphics.fill(255, 0, 0, 72);
             gridGraphics.stroke(0);
-            gridGraphics.rect(x * (gridWidth / cols), y * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
+            gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
         } 
         if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
             gridGraphics.fill(0, 255, 0, 72);
             gridGraphics.stroke(0);
-            gridGraphics.rect(x * (gridWidth / cols), y * (gridHeight / rows), (gridWidth / cols) - 1, (gridHeight / rows) - 1);
+            gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
         }
     }  
     
@@ -139,8 +139,8 @@ function draw() {
 
 function path(start, end) {
     // Initialise pathfinding variables
-    for (var i = 0; i < cols; i++) {
-        for (var j = 0; j < rows; j++) {
+    for (var i = 0; i < COLS; i++) {
+        for (var j = 0; j < ROWS; j++) {
             board[i][j].pathInit();
         }
     }
@@ -201,8 +201,8 @@ function heuristic (a, b) {
 function mousePressed() {
     if (mouseX < 480 && mouseY < 480) {
         // Calculate the x-pos and y-pos of the mouse with respect to the grid
-        var x = Math.floor(mouseX / 480 * cols);
-        var y = Math.floor(mouseY / 480 * rows);
+        var x = Math.floor(mouseX / 480 * COLS);
+        var y = Math.floor(mouseY / 480 * ROWS);
         // If path short enough with respect to roll value and destination not an obstacle, move item
         if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
             moveItem(0, x, y);
