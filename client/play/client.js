@@ -2,7 +2,7 @@
 
 var canvas = undefined;
 const CANVAS_WIDTH = 480;
-const CANVAS_HEIGHT = 480;
+const CANVAS_HEIGHT = 504;
 
 const COLS = 20;
 const ROWS = 20;
@@ -11,7 +11,7 @@ var gridGraphics = undefined;
 const GRID_WIDTH = 480;
 const GRID_HEIGHT = 480;
 
-var characters = 1;
+var characters = 4;
 var hold = new Array(characters);
 var rollValue = 6;
 var currentCharacter = 0;
@@ -30,15 +30,11 @@ function Cell(i, j) {
     this.obstacle = false;
     
     // Random obstacles for testing
-    if (0.3 > random()) {
-        this.obstacle = true;
-    }
+    //if (0.1 > random()) {
+    //    this.obstacle = true;
+    //}
     
-    if (this.i == 0 && this.j == 0) {
-        this.obstacle = false;
-    }
-    
-    this.hold = -1;
+       this.hold = -1;
     
     this.show = function() {
         gridGraphics.fill(255);
@@ -73,12 +69,20 @@ function Cell(i, j) {
     }
 }
 
-function Item(i, j) {
+function Item(type, name, red, green, blue, i, j) {
+    
+    this.type = type;
+    this.name = name;
+    
+    this.r = red;
+    this.g = green;
+    this.b = blue;
+    
     this.i = i;
     this.j = j;
     
     this.show = function() {
-        gridGraphics.fill(0, 255, 0);
+        gridGraphics.fill(this.r, this.g, this.b);
         gridGraphics.stroke(0);
         gridGraphics.rect(this.i * (GRID_WIDTH / COLS), this.j * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
     }
@@ -103,13 +107,29 @@ function setup() {
         }
     }
     
-    hold[0] = new Item(0, 0);
-    board[0][0].hold = 0;
-
+    hold[0] = new Item("character", "Reverend Green", 0, 255, 0, 1, 1);
+    board[1][1].hold = 0;
+    board[1][1].obstacle = true;
+    
+    
+    hold[1] = new Item("character", "Prof. Plum", 160, 32, 240, 18, 1);
+    board[18][1].hold = 1;
+    board[18][1].obstacle = true;
+    
+    hold[2] = new Item("character", "Miss Scarlet", 255, 36, 0, 1, 18);
+    board[1][18].hold = 2;
+    board[18][1].obstacle = true;
+    
+    hold[3] = new Item("character", "Mrs. Peacock", 0, 0, 255, 18, 18);
+    board[18][18].hold = 3;
+    board[18][18].obstacle = true;
+    
+    
     console.log("Setup complete")
 }
 
 function draw() {
+    
     // Tell each cell to show itself
     for (var i = 0; i < COLS; i++) {
         for (var j = 0; j < ROWS; j++) {
@@ -121,13 +141,8 @@ function draw() {
     if (mouseX < 480 && mouseY < 480) {
         var x = Math.floor(mouseX / 480 * COLS);
         var y = Math.floor(mouseY / 480 * ROWS);
-        if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) > rollValue && board[x][y].obstacle == false) {
-            gridGraphics.fill(255, 0, 0, 72);
-            gridGraphics.stroke(0);
-            gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
-        } 
         if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
-            gridGraphics.fill(0, 255, 0, 72);
+            gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b, 72);
             gridGraphics.stroke(0);
             gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
         }
@@ -205,17 +220,30 @@ function mousePressed() {
         var y = Math.floor(mouseY / 480 * ROWS);
         // If path short enough with respect to roll value and destination not an obstacle, move item
         if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
-            moveItem(0, x, y);
+            moveItem(currentCharacter, x, y);
         }
-    }   
+    } else if (mouseX < 480 && 480 < mouseY && mouseY < 504) {
+        canvas.background(51);
+    }  
 }
 
 function moveItem(index, x, y) {
     // Empty the cell holding bay
     board[hold[index].i][hold[index].j].hold = -1;
+    // Set old cell obstacle value to false
+    board[hold[index].i][hold[index].j].obstacle = false;
     // Change the x-pos and y-pos of the item
     hold[index].i = x;
     hold[index].j = y;
     // Place the item in the new cell holding bay
     board[x][y].hold = index;
+    // Set new cell obstacle value to true
+    board[x][y].obstacle = true;
+    
+    if (currentCharacter < characters - 1) {
+        currentCharacter++
+    } else {
+        currentCharacter = 0
+    }
+    
 }
