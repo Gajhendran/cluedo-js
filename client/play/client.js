@@ -11,6 +11,10 @@ var gridGraphics = undefined;
 const GRID_WIDTH = 480;
 const GRID_HEIGHT = 480;
 
+var charactersGraphics = undefined;
+const CHARACTERS_WIDTH = 480;
+const CHARACTERS_HEIGHT = 24;
+
 var characters = 4;
 var hold = new Array(characters);
 var rollValue = 6;
@@ -95,6 +99,7 @@ function setup() {
     // Init graphic canvas and buffers
     canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     gridGraphics = createGraphics(GRID_WIDTH, GRID_HEIGHT);
+    charactersGraphics = createGraphics(CHARACTERS_WIDTH, CHARACTERS_HEIGHT);
     
     // Making a 2D array
     for (var i = 0; i < COLS; i++) {
@@ -130,6 +135,8 @@ function setup() {
 
 function draw() {
     
+    charactersGraphics.clear();
+    
     // Tell each cell to show itself
     for (var i = 0; i < COLS; i++) {
         for (var j = 0; j < ROWS; j++) {
@@ -141,14 +148,30 @@ function draw() {
     if (mouseX < 480 && mouseY < 480) {
         var x = Math.floor(mouseX / 480 * COLS);
         var y = Math.floor(mouseY / 480 * ROWS);
-        if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
+        if (path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
             gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b, 72);
             gridGraphics.stroke(0);
             gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
         }
     }  
     
+    // Character graphics
+    for (var i = 0; i < characters; i++) {
+        ellipseMode(CENTER);
+        charactersGraphics.fill(255)
+        charactersGraphics.ellipse(12 + 24 * i, 12, 20);
+        if (i == currentCharacter) {
+            charactersGraphics.fill(hold[i].r, hold[i].g, hold[i].b);
+        } else {
+            charactersGraphics.fill(hold[i].r, hold[i].g, hold[i].b, 72);
+        }
+        charactersGraphics.stroke(0);
+        charactersGraphics.ellipse((12 + 24 * i), 12, 20);
+    }
+    
+    
     image(gridGraphics, 0, 0);
+    image(charactersGraphics, 0, 480);
     
 }
 
@@ -222,9 +245,7 @@ function mousePressed() {
         if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
             moveItem(currentCharacter, x, y);
         }
-    } else if (mouseX < 480 && 480 < mouseY && mouseY < 504) {
-        canvas.background(51);
-    }  
+    } 
 }
 
 function moveItem(index, x, y) {
