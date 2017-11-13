@@ -15,7 +15,7 @@ var charactersGraphics = undefined;
 const CHARACTERS_WIDTH = 480;
 const CHARACTERS_HEIGHT = 24;
 
-var characters = 4;
+var characters = 5;
 var hold = new Array(characters);
 var rollValue = 6;
 var currentCharacter = 0;
@@ -41,8 +41,8 @@ function Cell(i, j) {
        this.hold = -1;
     
     this.show = function() {
-        gridGraphics.fill(255);
-        gridGraphics.stroke(0);
+        gridGraphics.fill(255,248,220);
+        gridGraphics.stroke(160, 82, 45);
         if (this.obstacle == true) {
             gridGraphics.fill(0);
         }
@@ -87,7 +87,7 @@ function Item(type, name, red, green, blue, i, j) {
     
     this.show = function() {
         gridGraphics.fill(this.r, this.g, this.b);
-        gridGraphics.stroke(0);
+        gridGraphics.stroke(160, 82, 45);
         gridGraphics.rect(this.i * (GRID_WIDTH / COLS), this.j * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
     }
 }
@@ -112,31 +112,31 @@ function setup() {
         }
     }
     
-    hold[0] = new Item("character", "Reverend Green", 0, 255, 0, 1, 1);
+    hold[0] = new Item("character", "Caroline Lucas", 0, 255, 0, 1, 1);
     board[1][1].hold = 0;
     board[1][1].obstacle = true;
     
     
-    hold[1] = new Item("character", "Prof. Plum", 160, 32, 240, 18, 1);
+    hold[1] = new Item("character", "Nigel Farage", 160, 32, 240, 18, 1);
     board[18][1].hold = 1;
     board[18][1].obstacle = true;
     
-    hold[2] = new Item("character", "Miss Scarlet", 255, 36, 0, 1, 18);
+    hold[2] = new Item("character", "Jeremy Corbyn", 255, 36, 0, 1, 18);
     board[1][18].hold = 2;
     board[18][1].obstacle = true;
     
-    hold[3] = new Item("character", "Mrs. Peacock", 0, 0, 255, 18, 18);
+    hold[3] = new Item("character", "Theresa May", 0, 0, 255, 18, 18);
     board[18][18].hold = 3;
     board[18][18].obstacle = true;
     
+    hold[4] = new Item("character", "Vince Cable", 204, 204, 0, 7, 7);
+    board[7][7].hold = 4;
+    board[7][7].obstacle = true;
     
     console.log("Setup complete")
 }
 
 function draw() {
-    
-    charactersGraphics.clear();
-    
     // Tell each cell to show itself
     for (var i = 0; i < COLS; i++) {
         for (var j = 0; j < ROWS; j++) {
@@ -150,25 +150,29 @@ function draw() {
         var y = Math.floor(mouseY / 480 * ROWS);
         if (path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
             gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b, 72);
-            gridGraphics.stroke(0);
+            gridGraphics.stroke(160, 82, 45);
             gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
         }
     }  
     
     // Character graphics
+    charactersGraphics.background(255);
     for (var i = 0; i < characters; i++) {
         ellipseMode(CENTER);
-        charactersGraphics.fill(255)
-        charactersGraphics.ellipse(12 + 24 * i, 12, 20);
+        charactersGraphics.fill(55)
+        //charactersGraphics.ellipse(12 + 24 * i, 12, 20);
         if (i == currentCharacter) {
+            strokeWeight(1);
             charactersGraphics.fill(hold[i].r, hold[i].g, hold[i].b);
         } else {
+            strokeWeight(30);
             charactersGraphics.fill(hold[i].r, hold[i].g, hold[i].b, 72);
         }
-        charactersGraphics.stroke(0);
         charactersGraphics.ellipse((12 + 24 * i), 12, 20);
     }
     
+    charactersGraphics.fill(0, 0, 0, 255);
+    charactersGraphics.text(hold[currentCharacter].name + "'s turn", 12 + 24 * characters, 18);
     
     image(gridGraphics, 0, 0);
     image(charactersGraphics, 0, 480);
