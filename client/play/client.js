@@ -15,10 +15,13 @@ var charactersGraphics = undefined;
 const CHARACTERS_WIDTH = 480;
 const CHARACTERS_HEIGHT = 24;
 
-var characters = 5;
+var characters = 1;
 var hold = new Array(characters);
 var rollValue = 6;
 var currentCharacter = 0;
+
+// Debugging
+var showObstacles = false;
 
 // Cell object
 function Cell(i, j) {
@@ -41,9 +44,9 @@ function Cell(i, j) {
        this.hold = -1;
     
     this.show = function() {
-        gridGraphics.fill(255,248,220);
-        gridGraphics.stroke(160, 82, 45);
-        if (this.obstacle == true) {
+        gridGraphics.fill(255);
+        gridGraphics.stroke(0);
+        if (this.obstacle == true && showObstacles) {
             gridGraphics.fill(0);
         }
         if (this.hold == -1) {
@@ -87,7 +90,7 @@ function Item(type, name, red, green, blue, i, j) {
     
     this.show = function() {
         gridGraphics.fill(this.r, this.g, this.b);
-        gridGraphics.stroke(160, 82, 45);
+        gridGraphics.stroke(0);
         gridGraphics.rect(this.i * (GRID_WIDTH / COLS), this.j * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
     }
 }
@@ -112,32 +115,72 @@ function setup() {
         }
     }
     
-    hold[0] = new Item("character", "Caroline Lucas", 0, 255, 0, 1, 1);
-    board[1][1].hold = 0;
-    board[1][1].obstacle = true;
+    // Outline the map
+    
+    horizontalObstacleLine(board[0][2], board[5][2]);
+    verticalObstacleLine(board[5][0], board[5][2]);
+    
+    verticalObstacleLine(board[8][0], board[8][5]);
+    horizontalObstacleLine(board[8][5], board[11][5]);
+    verticalObstacleLine(board[11][0], board[11][5]);
+    
+    verticalObstacleLine(board[14][0], board[14][4]);
+    horizontalObstacleLine(board[14][4], board[19][4]);
+    
+    horizontalObstacleLine(board[0][5], board[4][5]);
+    verticalObstacleLine(board[5][6], board[5][8]);
+    horizontalObstacleLine(board[0][9], board[4][9]);
+    
+    verticalObstacleLine(board[8][7], board[8][11]);
+    horizontalObstacleLine(board[8][7], board[11][7]);
+    verticalObstacleLine(board[11][7], board[11][11]);
+    horizontalObstacleLine(board[8][11], board[11][11]);
+    
+    verticalObstacleLine(board[14][8], board[14][11]);
+    horizontalObstacleLine(board[14][8], board[19][8]);
+    horizontalObstacleLine(board[14][11], board[19][11]);
+    
+    horizontalObstacleLine(board[0][11], board[5][11]);
+    verticalObstacleLine(board[5][11], board[5][14]);
+    horizontalObstacleLine(board[0][14], board[5][14]);
+    
+    horizontalObstacleLine(board[0][17], board[4][17]);
+    verticalObstacleLine(board[5][18], board[5][19]);
+    
+    horizontalObstacleLine(board[8][14], board[13][14]);
+    verticalObstacleLine(board[8][14], board[8][19]);
+    verticalObstacleLine(board[13][14], board[13][19]);
+    
+    horizontalObstacleLine(board[16][15], board[19][15]);
+    verticalObstacleLine(board[16][15], board[16][19]);
+    
+    hold[0] = new Item("character", "Reverend Green", 0, 255, 0, 6, 0);
+    board[6][0].hold = 0;
+    board[6][0].obstacle = true;
+    
+    //hold[1] = new Item("character", "Prof. Plum", 160, 32, 240, 18, 1);
+    //board[18][1].hold = 1;
+    //board[18][1].obstacle = true;
+    
+    //hold[2] = new Item("character", "Miss Scarlet", 255, 36, 0, 1, 18);
+    //board[1][18].hold = 2;
+    //board[18][1].obstacle = true;
+    
+    //hold[3] = new Item("character", "Mrs. Peacock", 0, 0, 255, 18, 18);
+    //board[18][18].hold = 3;
+    //board[18][18].obstacle = true;
+    
+    //hold[4] = new Item("character", "Colonel Mustard", 204, 204, 0, 7, 7);
+    //board[7][7].hold = 4;
+    //board[7][7].obstacle = true;
     
     
-    hold[1] = new Item("character", "Nigel Farage", 160, 32, 240, 18, 1);
-    board[18][1].hold = 1;
-    board[18][1].obstacle = true;
-    
-    hold[2] = new Item("character", "Jeremy Corbyn", 255, 36, 0, 1, 18);
-    board[1][18].hold = 2;
-    board[18][1].obstacle = true;
-    
-    hold[3] = new Item("character", "Theresa May", 0, 0, 255, 18, 18);
-    board[18][18].hold = 3;
-    board[18][18].obstacle = true;
-    
-    hold[4] = new Item("character", "Vince Cable", 204, 204, 0, 7, 7);
-    board[7][7].hold = 4;
-    board[7][7].obstacle = true;
     
     console.log("Setup complete")
 }
 
 function draw() {
-    // Tell each cell to show itself
+   // Tell each cell to show itself
     for (var i = 0; i < COLS; i++) {
         for (var j = 0; j < ROWS; j++) {
             board[i][j].show();
@@ -150,7 +193,6 @@ function draw() {
         var y = Math.floor(mouseY / 480 * ROWS);
         if (path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
             gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b, 72);
-            gridGraphics.stroke(160, 82, 45);
             gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
         }
     }  
@@ -159,13 +201,9 @@ function draw() {
     charactersGraphics.background(255);
     for (var i = 0; i < characters; i++) {
         ellipseMode(CENTER);
-        charactersGraphics.fill(55)
-        //charactersGraphics.ellipse(12 + 24 * i, 12, 20);
         if (i == currentCharacter) {
-            strokeWeight(1);
             charactersGraphics.fill(hold[i].r, hold[i].g, hold[i].b);
         } else {
-            strokeWeight(30);
             charactersGraphics.fill(hold[i].r, hold[i].g, hold[i].b, 72);
         }
         charactersGraphics.ellipse((12 + 24 * i), 12, 20);
@@ -174,9 +212,11 @@ function draw() {
     charactersGraphics.fill(0, 0, 0, 255);
     charactersGraphics.text(hold[currentCharacter].name + "'s turn", 12 + 24 * characters, 18);
     
+    // Draw rooms
+    drawBoardDetails();
+    
     image(gridGraphics, 0, 0);
     image(charactersGraphics, 0, 480);
-    
 }
 
 function path(start, end) {
@@ -271,4 +311,28 @@ function moveItem(index, x, y) {
         currentCharacter = 0
     }
     
+}
+
+function horizontalObstacleLine(start, end) {
+    var length = end.i - start.i
+    for (i = 0; i <= length; i++) {
+        board[start.i + i][start.j].obstacle = true;
+    }
+}
+
+function verticalObstacleLine(start, end) {
+    var length = end.j - start.j
+    for (i = 0; i <= length; i++) {
+        board[start.i][start.j + i].obstacle = true;
+    }
+}
+
+function drawBoardDetails() {
+    // Kitchen
+    gridGraphics.fill(0, 0, 0);
+    gridGraphics.strokeWeight(1);
+    gridGraphics.line(144 - 1, 0 - 1, 144 - 1, 72 - 1);
+    gridGraphics.line(0 - 1, 72 - 1, 144 - 1, 72 - 1);
+    gridGraphics.fill(255);
+    gridGraphics.rect(0 - 1, 0 - 1, 144 - 1, 72 - 1);
 }
