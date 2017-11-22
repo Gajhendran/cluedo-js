@@ -180,6 +180,8 @@ function setup() {
 }
 
 function draw() {
+    
+    
    // Tell each cell to show itself
     for (var i = 0; i < COLS; i++) {
         for (var j = 0; j < ROWS; j++) {
@@ -328,11 +330,85 @@ function verticalObstacleLine(start, end) {
 }
 
 function drawBoardDetails() {
-    // Kitchen
+    // Study
     gridGraphics.fill(0, 0, 0);
     gridGraphics.strokeWeight(1);
     gridGraphics.line(144 - 1, 0 - 1, 144 - 1, 72 - 1);
     gridGraphics.line(0 - 1, 72 - 1, 144 - 1, 72 - 1);
     gridGraphics.fill(255);
     gridGraphics.rect(0 - 1, 0 - 1, 144 - 1, 72 - 1);
+    // Hall
+    gridGraphics.fill(0, 0, 0);
+    gridGraphics.line(192 , 0 , 192 , 144 - 1);
+    gridGraphics.line(288-1, 0 , 288-1, 144 - 1);
+    gridGraphics.line(192 - 1, 144 - 2, 288 - 1, 144 - 2);
+    gridGraphics.fill(255);
+    gridGraphics.rect( 192  , 0 - 1, 96 - 2, 144 - 1);
+    // Lounge
+    gridGraphics.fill(0, 0, 0);
+    gridGraphics.line(336, 0, 336, 120 -1);
+    gridGraphics.line(336, 120-1, 480, 120-1);
+    gridGraphics.fill(255);
+    gridGraphics.rect(336, 0 -1, 144 -1, 120-1);
+    // Envolope
+    gridGraphics.fill(85,107,47);
+    gridGraphics.rect(192 -1, 168-1, 96, 120);
+    gridGraphics.textSize(28);
+    gridGraphics.textAlign(CENTER);
+    gridGraphics.strokeWeight(0);
+    gridGraphics.fill(255);
+    gridGraphics.text('Cluedo', 192+4, 168, 96, 48);
+    gridGraphics.strokeWeight(1);
+    // Library
+    gridGraphics.fill(0,0,0);
+    gridGraphics.line(0, 120, 120 - 1, 120);
+    gridGraphics.line(120 -2, 120, 120 -2, 144);
+    gridGraphics.line(120 -1, 144, 144-1, 144);
+    gridGraphics.line(144-2, 144, 144-2, 216 -1);
+    gridGraphics.line(144 -2, 216-2, 120-2, 216-2);
+    gridGraphics.line(120-2, 216-2, 120-2, 240-2);
+    gridGraphics.line(0 -1, 240-2, 120-1, 240-2);
+    gridGraphics.fill(255);
+    gridGraphics.rect(-1, 120, 120-1, 120 -2);
+    gridGraphics.stroke(255);
+    gridGraphics.rect(120-3, 144+1, 24, 72-4);
+    // Dining room
+    gridGraphics.fill(0);
+    gridGraphics.stroke(0);
+    gridGraphics.line(336, 192, 480, 192);
+    gridGraphics.line(336, 192, 336, 288 -1);
+    gridGraphics.line(336, 288 -2, 480, 288 -2);
+    gridGraphics.fill(255);
+    gridGraphics.rect(336, 192, 144 -1, 96 -2);
+    // Billiard room
+    gridGraphics.fill(0);
+    gridGraphics.line(0, 264, 144 -1, 264);
+    gridGraphics.line(144 -2, 264, 144-2, 360 -1);
+    gridGraphics.line(0, 360 -2, 144 -2, 360 -2);
+    gridGraphics.fill(255);
+    gridGraphics.rect(0 -1, 264, 144 -1, 96 -2);
+    // Conservatory
+    gridGraphics.fill(0);
+    gridGraphics.line(0, 408, 120, 408);
+    gridGraphics.line(120, 408, 120, 432);
+    gridGraphics.line(120, 432, 144 -1, 432);
+    gridGraphics.line(144 -2, 432, 144 -2, 480);
+    gridGraphics.fill(255);
+    gridGraphics.stroke(255);
+    gridGraphics.rect(0, 408+1, 120 -2, 72 -3);
+    gridGraphics.rect(120 -2, 432 +1 , 24 -1, 48 -3);
+    // Ballroom
+    gridGraphics.fill(0);
+    gridGraphics.stroke(0);
+    gridGraphics.line(192, 360, 312 -1, 360);
+    gridGraphics.line(312 -2, 360, 312 -2, 480);
+    gridGraphics.line(192, 360, 192, 480);
+    gridGraphics.fill(255);
+    gridGraphics.rect(192, 336, 144 -2, 144 -1);
+    // Kitchen
+    gridGraphics.fill(0);
+    gridGraphics.line(384, 360, 480, 360);
+    gridGraphics.line(384, 360, 384, 480);
+    gridGraphics.fill(255);
+    gridGraphics.rect(384, 360, 96 -1, 120 -1);
 }
