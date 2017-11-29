@@ -19,6 +19,7 @@
   "homepage": "https://github.com/tmksn/cluedo-js#readme",
   "dependencies": {
     "express": "^4.16.2",
-    "nodemon": "^1.12.1"
+    "nodemon": "^1.12.1",
+    "socket.io": "^0.9.19"
   }
 }

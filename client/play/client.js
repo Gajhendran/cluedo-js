@@ -20,6 +20,9 @@ var hold = new Array(characters);
 var rollValue = 6;
 var currentCharacter = 0;
 
+var socket;
+var connected = false;
+
 // Debugging
 var showObstacles = false;
 
@@ -95,8 +98,9 @@ function Item(type, name, red, green, blue, i, j) {
     }
 }
 
+        
 function setup() {
-    
+
     console.log("Starting client.js")
     
     // Init graphic canvas and buffers
@@ -174,7 +178,13 @@ function setup() {
     //board[7][7].hold = 4;
     //board[7][7].obstacle = true;
     
-    
+    // Socket stuff
+    socket = io.connect("https://cluedo-js-tomkuson.c9users.io")
+
+    //socket.on('connect', function(socket) {
+    //    alert("connection");
+    //});
+
     
     console.log("Setup complete")
 }
