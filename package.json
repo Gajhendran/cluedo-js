@@ -1,25 +1,16 @@
 {
-  "name": "cluedo-js",
+  "name": "workspace",
   "version": "1.0.0",
-  "description": "A JavaScript implementation of Cluedo",
+  "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tmksn/cluedo-js.git"
-  },
-  "author": "Tom Kuson",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/tmksn/cluedo-js/issues"
-  },
-  "homepage": "https://github.com/tmksn/cluedo-js#readme",
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "express": "^4.16.2",
-    "nodemon": "^1.12.1",
-    "socket.io": "^0.9.19"
+    "express": "^4.15.4",
+    "socket.io": "^2.0.3"
   }
 }
