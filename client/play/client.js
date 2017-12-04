@@ -180,11 +180,6 @@ function setup() {
     
     // Socket stuff
     socket = io.connect("https://cluedo-js-tomkuson.c9users.io")
-
-    //socket.on('connect', function(socket) {
-    //    alert("connection");
-    //});
-
     
     console.log("Setup complete")
 }
