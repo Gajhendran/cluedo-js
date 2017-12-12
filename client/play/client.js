@@ -23,9 +23,6 @@ var currentCharacter = 0;
 var socket = io.connect("https://cluedo-js-tomkuson.c9users.io");
 var connected = false;
 
-// Debugging
-var showObstacles = false;
-
 // Cell object
 function Cell(i, j) {
     // Cell position
@@ -36,22 +33,14 @@ function Cell(i, j) {
     this.g = 0;
     this.h = 0;
     this.n = [];
-    // Not an obstacle be default
+    // Not an obstacle by default
     this.obstacle = false;
-    
-    // Random obstacles for testing
-    //if (0.1 > random()) {
-    //    this.obstacle = true;
-    //}
-    
-       this.hold = -1;
-    
+    // Cell holds nothing by default
+    this.hold = -1;
+    // Show the cell
     this.show = function() {
         gridGraphics.fill(255);
         gridGraphics.stroke(0);
-        if (this.obstacle == true && showObstacles) {
-            gridGraphics.fill(0);
-        }
         if (this.hold == -1) {
             gridGraphics.strokeWeight(0.5);
             gridGraphics.rect(this.i * (GRID_WIDTH / COLS), this.j * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
@@ -59,6 +48,7 @@ function Cell(i, j) {
             hold[this.hold].show();
         }
     }
+    // Reset pathfinding variables
     this.pathInit = function() {
         this.n = [];
         if (this.i < COLS - 1) {
@@ -78,19 +68,16 @@ function Cell(i, j) {
         this.h = 0;
     }
 }
-
+// Item object
 function Item(type, name, red, green, blue, i, j) {
-    
     this.type = type;
     this.name = name;
-    
     this.r = red;
     this.g = green;
     this.b = blue;
-    
     this.i = i;
     this.j = j;
-    
+    // Show item
     this.show = function() {
         gridGraphics.fill(this.r, this.g, this.b);
         gridGraphics.stroke(0);
@@ -98,16 +85,30 @@ function Item(type, name, red, green, blue, i, j) {
     }
 }
 
-        
-function setup() {
+// Load game assets
+function preload() {
+    console.log("Fetching assets...")
+}
 
-    console.log("Starting client.js")
-    
+// Setup game    
+function setup() {
+    console.log("Setting up...")
     // Init graphic canvas and buffers
     canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     gridGraphics = createGraphics(GRID_WIDTH, GRID_HEIGHT);
     charactersGraphics = createGraphics(CHARACTERS_WIDTH, CHARACTERS_HEIGHT);
-    
+    // Generate board
+    generateBoard();
+    // Place characters
+    hold[0] = new Item("character", "Reverend Green", 0, 255, 0, 6, 0);
+    board[6][0].hold = 0;
+    board[6][0].obstacle = true;
+    socket.on('message', function() {
+        window.alert("Message!");
+    });
+    console.log("Setup complete")
+}
+function generateBoard() {
     // Making a 2D array
     for (var i = 0; i < COLS; i++) {
         board[i] = new Array(ROWS);
@@ -118,71 +119,54 @@ function setup() {
             board[i][j] = new Cell(i, j);
         }
     }
-    
     // Outline the map
-    
     horizontalObstacleLine(board[0][2], board[5][2]);
     verticalObstacleLine(board[5][0], board[5][2]);
-    
     verticalObstacleLine(board[8][0], board[8][5]);
     horizontalObstacleLine(board[8][5], board[11][5]);
     verticalObstacleLine(board[11][0], board[11][5]);
-    
     verticalObstacleLine(board[14][0], board[14][4]);
     horizontalObstacleLine(board[14][4], board[19][4]);
-    
     horizontalObstacleLine(board[0][5], board[4][5]);
     verticalObstacleLine(board[5][6], board[5][8]);
     horizontalObstacleLine(board[0][9], board[4][9]);
-    
     verticalObstacleLine(board[8][7], board[8][11]);
     horizontalObstacleLine(board[8][7], board[11][7]);
     verticalObstacleLine(board[11][7], board[11][11]);
     horizontalObstacleLine(board[8][11], board[11][11]);
-    
     verticalObstacleLine(board[14][8], board[14][11]);
     horizontalObstacleLine(board[14][8], board[19][8]);
     horizontalObstacleLine(board[14][11], board[19][11]);
-    
     horizontalObstacleLine(board[0][11], board[5][11]);
     verticalObstacleLine(board[5][11], board[5][14]);
     horizontalObstacleLine(board[0][14], board[5][14]);
-    
     horizontalObstacleLine(board[0][17], board[4][17]);
     verticalObstacleLine(board[5][18], board[5][19]);
-    
     horizontalObstacleLine(board[8][14], board[13][14]);
     verticalObstacleLine(board[8][14], board[8][19]);
     verticalObstacleLine(board[13][14], board[13][19]);
-    
     horizontalObstacleLine(board[16][15], board[19][15]);
     verticalObstacleLine(board[16][15], board[16][19]);
-    
-    hold[0] = new Item("character", "Reverend Green", 0, 255, 0, 6, 0);
-    board[6][0].hold = 0;
-    board[6][0].obstacle = true;
-    
-    // Socket stuff
-    
-    socket.on('message', function() {
-        window.alert("Message!");
-    });
-    
-    console.log("Setup complete")
+}
+function horizontalObstacleLine(start, end) {
+    var length = end.i - start.i
+    for (i = 0; i <= length; i++) {
+        board[start.i + i][start.j].obstacle = true;
+    }
+}
+function verticalObstacleLine(start, end) {
+    var length = end.j - start.j
+    for (i = 0; i <= length; i++) {
+        board[start.i][start.j + i].obstacle = true;
+    }
 }
 
-
-
+// Draw graphics
 function draw() {
-    
-    
-   // Tell each cell to show itself
+    // Tell each cell to show itself
     for (var i = 0; i < COLS; i++) {
-        for (var j = 0; j < ROWS; j++) {
-            board[i][j].show();
-        }
+        for (var j = 0; j < ROWS; j++) { board[i][j].show(); }
     }
-    
     // Highlight where the player can go
     if (mouseX < 480 && mouseY < 480) {
         var x = Math.floor(mouseX / 480 * COLS);
@@ -193,7 +177,7 @@ function draw() {
         }
     }  
     
-    // Character graphics
+    // Character ticker
     charactersGraphics.background(255);
     for (var i = 0; i < characters; i++) {
         ellipseMode(CENTER);
@@ -204,125 +188,14 @@ function draw() {
         }
         charactersGraphics.ellipse((12 + 24 * i), 12, 20);
     }
-    
+    // Ticker text
     charactersGraphics.fill(0, 0, 0, 255);
     charactersGraphics.text(hold[currentCharacter].name + "'s turn", 12 + 24 * characters, 18);
-    
     // Draw rooms
     drawBoardDetails();
-    
     image(gridGraphics, 0, 0);
     image(charactersGraphics, 0, 480);
 }
-
-function path(start, end) {
-    // Initialise pathfinding variables
-    for (var i = 0; i < COLS; i++) {
-        for (var j = 0; j < ROWS; j++) {
-            board[i][j].pathInit();
-        }
-    }
-    var openSet = [];
-    var closedSet = [];
-    openSet.push(start);
-    while (openSet.length > 0) {
-        var lowestIndex = 0;
-        for (var i = 0; i < openSet.length; i++) {
-            if (openSet[i].f < openSet[lowestIndex].f) {
-                lowestIndex = i;
-            }
-        }
-        var current = openSet[lowestIndex];
-        if (openSet[lowestIndex] == end) {
-            // console.log("Shortest path found from (" + start.i + ", " + start.j + ") to (" + end.i + ", " + end.j + "), length " + openSet[lowestIndex].f);
-            return openSet[lowestIndex].f;
-        }
-        removeFromArray(openSet, current);
-        closedSet.push(current);
-        var neighbours = current.n;
-        for (var i = 0; i < neighbours.length; i++) {
-            var neighbour = neighbours[i];
-            if (!closedSet.includes(neighbour) && !neighbour.obstacle) {
-                var tentative_g = current.g + 1;
-                if (openSet.includes(neighbour)) {
-                    if (tentative_g < neighbour.g) {
-                        neighbour.g = tentative_g;
-                    }
-                } else {
-                    neighbour.g = tentative_g;
-                    openSet.push(neighbour);
-                }
-                neighbour.h = heuristic(neighbour, end);
-                neighbour.f = neighbour.g + neighbour.h;
-            }
-        }
-    }
-    // No solution
-    // console.log("No path found.")
-    return 100;
-}
-
-function removeFromArray (array, item) {
-    // Go backwards through array, remove any items that are the same of the item passed
-    for (var i = array.length - 1; i >= 0; i--) {
-        if (array[i] == item) {
-            array.splice(i, 1);
-        }
-    }
-}
-
-function heuristic (a, b) {
-    // Manhattan heuristic
-    return abs(a.i-b.i) + abs(a.j-a.j);
-}
-
-function mousePressed() {
-    if (mouseX < 480 && mouseY < 480) {
-        // Calculate the x-pos and y-pos of the mouse with respect to the grid
-        var x = Math.floor(mouseX / 480 * COLS);
-        var y = Math.floor(mouseY / 480 * ROWS);
-        // If path short enough with respect to roll value and destination not an obstacle, move item
-        if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
-            moveItem(currentCharacter, x, y);
-        }
-    } 
-}
-
-function moveItem(index, x, y) {
-    // Empty the cell holding bay
-    board[hold[index].i][hold[index].j].hold = -1;
-    // Set old cell obstacle value to false
-    board[hold[index].i][hold[index].j].obstacle = false;
-    // Change the x-pos and y-pos of the item
-    hold[index].i = x;
-    hold[index].j = y;
-    // Place the item in the new cell holding bay
-    board[x][y].hold = index;
-    // Set new cell obstacle value to true
-    board[x][y].obstacle = true;
-    
-    if (currentCharacter < characters - 1) {
-        currentCharacter++
-    } else {
-        currentCharacter = 0
-    }
-    
-}
-
-function horizontalObstacleLine(start, end) {
-    var length = end.i - start.i
-    for (i = 0; i <= length; i++) {
-        board[start.i + i][start.j].obstacle = true;
-    }
-}
-
-function verticalObstacleLine(start, end) {
-    var length = end.j - start.j
-    for (i = 0; i <= length; i++) {
-        board[start.i][start.j + i].obstacle = true;
-    }
-}
-
 function drawBoardDetails() {
     // Study
     gridGraphics.fill(0, 0, 0);
@@ -406,3 +279,95 @@ function drawBoardDetails() {
     gridGraphics.fill(255);
     gridGraphics.rect(384, 360, 96 -1, 120 -1);
 }
+
+// Pathfinding functions
+function path(start, end) {
+    // Initialise pathfinding variables
+    for (var i = 0; i < COLS; i++) { for (var j = 0; j < ROWS; j++) { board[i][j].pathInit(); } }
+    var openSet = [];
+    var closedSet = [];
+    openSet.push(start);
+    // Keep searching until no more left
+    while (openSet.length > 0) {
+        var lowestIndex = 0;
+        for (var i = 0; i < openSet.length; i++) {
+            if (openSet[i].f < openSet[lowestIndex].f) {
+                lowestIndex = i;
+            }
+        }
+        var current = openSet[lowestIndex];
+        if (openSet[lowestIndex] == end) {
+            // Shortest path found, return length
+            return openSet[lowestIndex].f;
+        }
+        removeFromArray(openSet, current);
+        closedSet.push(current);
+        var neighbours = current.n;
+        for (var i = 0; i < neighbours.length; i++) {
+            var neighbour = neighbours[i];
+            if (!closedSet.includes(neighbour) && !neighbour.obstacle) {
+                var tentative_g = current.g + 1;
+                if (openSet.includes(neighbour)) {
+                    if (tentative_g < neighbour.g) {
+                        neighbour.g = tentative_g;
+                    }
+                } else {
+                    neighbour.g = tentative_g;
+                    openSet.push(neighbour);
+                }
+                neighbour.h = heuristic(neighbour, end);
+                neighbour.f = neighbour.g + neighbour.h;
+            }
+        }
+    }
+    // No path found, return extreme length
+    return 100;
+}
+function heuristic (a, b) {
+    // Manhattan heuristic
+    return abs(a.i-b.i) + abs(a.j-a.j);
+}
+function removeFromArray (array, item) {
+    // Go backwards through array, remove any items that are the same of the item passed
+    for (var i = array.length - 1; i >= 0; i--) {
+        if (array[i] == item) {
+            array.splice(i, 1);
+        }
+    }
+}
+
+
+function mousePressed() {
+    if (mouseX < 480 && mouseY < 480) {
+        // Calculate the x-pos and y-pos of the mouse with respect to the grid
+        var x = Math.floor(mouseX / 480 * COLS);
+        var y = Math.floor(mouseY / 480 * ROWS);
+        // If path short enough with respect to roll value and destination not an obstacle, move item
+        if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
+            moveItem(currentCharacter, x, y);
+        }
+    } 
+}
+
+function moveItem(index, x, y) {
+    // Empty the cell holding bay
+    board[hold[index].i][hold[index].j].hold = -1;
+    // Set old cell obstacle value to false
+    board[hold[index].i][hold[index].j].obstacle = false;
+    // Change the x-pos and y-pos of the item
+    hold[index].i = x;
+    hold[index].j = y;
+    // Place the item in the new cell holding bay
+    board[x][y].hold = index;
+    // Set new cell obstacle value to true
+    board[x][y].obstacle = true;
+    if (currentCharacter < characters - 1) {
+        currentCharacter++
+    } else {
+        currentCharacter = 0
+    }
+    
+}
+
+
+
