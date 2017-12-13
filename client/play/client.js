@@ -87,8 +87,28 @@ function Item(type, name, red, green, blue, i, j) {
 
 // Load game assets
 function preload() {
-    console.log("Fetching assets...")
+    console.log("Fetching assets...");
+    console.log("Placing listeners...")
+    socket.on('clientMoveItem', index, x, y){
+        // Empty the cell holding bay
+        board[hold[index].i][hold[index].j].hold = -1;
+        // Set old cell obstacle value to false
+        board[hold[index].i][hold[index].j].obstacle = false;
+        // Change the x-pos and y-pos of the item
+        hold[index].i = x;
+        hold[index].j = y;
+        // Place the item in the new cell holding bay
+        board[x][y].hold = index;
+        // Set new cell obstacle value to true
+        board[x][y].obstacle = true;
+        if (currentCharacter < characters - 1) {
+            currentCharacter++
+        } else {
+            currentCharacter = 0
+        }
+    }
 }
+
 
 // Setup game    
 function setup() {
@@ -103,9 +123,6 @@ function setup() {
     hold[0] = new Item("character", "Reverend Green", 0, 255, 0, 6, 0);
     board[6][0].hold = 0;
     board[6][0].obstacle = true;
-    socket.on('message', function() {
-        window.alert("Message!");
-    });
     console.log("Setup complete")
 }
 function generateBoard() {
@@ -344,30 +361,12 @@ function mousePressed() {
         var y = Math.floor(mouseY / 480 * ROWS);
         // If path short enough with respect to roll value and destination not an obstacle, move item
         if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
-            moveItem(currentCharacter, x, y);
+            socket.emit(currentCharacter, x, y);
         }
-    } 
+    }
 }
 
-function moveItem(index, x, y) {
-    // Empty the cell holding bay
-    board[hold[index].i][hold[index].j].hold = -1;
-    // Set old cell obstacle value to false
-    board[hold[index].i][hold[index].j].obstacle = false;
-    // Change the x-pos and y-pos of the item
-    hold[index].i = x;
-    hold[index].j = y;
-    // Place the item in the new cell holding bay
-    board[x][y].hold = index;
-    // Set new cell obstacle value to true
-    board[x][y].obstacle = true;
-    if (currentCharacter < characters - 1) {
-        currentCharacter++
-    } else {
-        currentCharacter = 0
-    }
-    
-}
+
 
 
 
