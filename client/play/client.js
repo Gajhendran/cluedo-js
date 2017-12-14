@@ -88,8 +88,8 @@ function Item(type, name, red, green, blue, i, j) {
 // Load game assets
 function preload() {
     console.log("Fetching assets...");
-    console.log("Placing listeners...")
-    socket.on('clientMoveItem', index, x, y){
+    console.log("Placing listeners...");
+    socket.on('clientMoveItem', function(index, x, y){
         // Empty the cell holding bay
         board[hold[index].i][hold[index].j].hold = -1;
         // Set old cell obstacle value to false
@@ -106,7 +106,7 @@ function preload() {
         } else {
             currentCharacter = 0
         }
-    }
+    });
 }
 
 
@@ -361,7 +361,7 @@ function mousePressed() {
         var y = Math.floor(mouseY / 480 * ROWS);
         // If path short enough with respect to roll value and destination not an obstacle, move item
         if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
-            socket.emit(currentCharacter, x, y);
+            socket.emit('moveItem',currentCharacter, x, y);
         }
     }
 }
