@@ -1,6 +1,6 @@
 // Declaring variables & constants & objects
 var canvas = undefined;
-const CANVAS_WIDTH = 480;
+const CANVAS_WIDTH = 480 + 480 ;
 const CANVAS_HEIGHT = 504;
 const COLS = 20;
 const ROWS = 20;
@@ -16,6 +16,8 @@ var hold = undefined;
 var rollValue = 6;
 var currentCharacter = 0;
 var gameState = "notReady";
+const MAJOR_MISC_WIDTH = 480;
+const MAJOR_MISC_HEIGHT = 480;
 var socket = io.connect("https://cluedo-js-tomkuson.c9users.io");
 
 function Cell(i, j) 
@@ -113,6 +115,7 @@ function setup()
         canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         gridGraphics = createGraphics(GRID_WIDTH, GRID_HEIGHT);
         charactersGraphics = createGraphics(CHARACTERS_WIDTH, CHARACTERS_HEIGHT);
+        majorMiscGraphics = createGraphics(MAJOR_MISC_WIDTH, MAJOR_MISC_HEIGHT);
         // Generate board
         generateBoard();
         console.log("Setup complete")
@@ -197,6 +200,7 @@ function draw()
                 }
         }
         drawBoardDetails();
+        majorMiscGraphics.background(200);
         // Draw game details
         if (gameState == "inProgress") {
                 // Highlight where the player can go
@@ -226,6 +230,7 @@ function draw()
         
         image(gridGraphics, 0, 0);
         image(charactersGraphics, 0, 480);
+        image(majorMiscGraphics, 480, 0);
 }
 function drawBoardDetails() 
 {
