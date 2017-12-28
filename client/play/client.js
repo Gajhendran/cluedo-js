@@ -1,3 +1,84 @@
+// Declaring variables & constants & objects
+var canvas = undefined;
+const CANVAS_WIDTH = 480;
+const CANVAS_HEIGHT = 504;
+const COLS = 20;
+const ROWS = 20;
+var board = new Array(COLS);
+var gridGraphics = undefined;
+const GRID_WIDTH = 480;
+const GRID_HEIGHT = 480;
+var charactersGraphics = undefined;
+const CHARACTERS_WIDTH = 480;
+const CHARACTERS_HEIGHT = 24;
+var characters = 1;
+var hold = undefined;
+var rollValue = 6;
+var currentCharacter = 0;
+var gameState = "notReady";
+var socket = io.connect("https://cluedo-js-tomkuson.c9users.io");
+
+function Cell(i, j) 
+{
+        // Cell position
+        this.i = i;
+        this.j = j;
+        // Pathfinding variables
+        this.f = this.g = this.h = 0;
+        this.n = [];
+        // Not an obstacle by default
+        this.obstacle = false;
+        // Cell holds nothing by default
+        this.hold = -1;
+        // Show the cell
+        this.show = function() 
+        {
+                gridGraphics.fill(255);
+                gridGraphics.stroke(0);
+                if (this.hold == -1) {
+                        gridGraphics.strokeWeight(0.5);
+                        gridGraphics.rect(this.i * (GRID_WIDTH / COLS), this.j * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                } else {
+                        hold[this.hold].show();
+                }
+        }
+        // Reset pathfinding variables
+        this.pathInit = function() 
+        {
+                this.n = [];
+                if (this.i < COLS - 1) {
+                        this.n.push(board[this.i + 1][j]);
+                }
+                if (this.i > 0) {
+                        this.n.push(board[this.i - 1][j]);
+                }
+                if (this.j < ROWS - 1) {
+                        this.n.push(board[this.i][j + 1]);
+                }
+                if (this.j > 0) {
+                        this.n.push(board[this.i][j - 1]);
+                }
+                this.f = this.g = this.h = 0;
+        }
+}
+function Item(type, name, red, green, blue, i, j) 
+{
+        this.type = type;
+        this.name = name;
+        this.r = red;
+        this.g = green;
+        this.b = blue;
+        this.i = i;
+        this.j = j;
+        // Show item
+        this.show = function() 
+        {
+                gridGraphics.fill(this.r, this.g, this.b);
+                gridGraphics.stroke(0);
+                gridGraphics.rect(this.i * (GRID_WIDTH / COLS), this.j * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+        }
+}
+
 // Load game assets
 function preload() 
 {
@@ -34,11 +115,21 @@ function setup()
         charactersGraphics = createGraphics(CHARACTERS_WIDTH, CHARACTERS_HEIGHT);
         // Generate board
         generateBoard();
-        // Place characters
-        hold[0] = new Item("character", "Reverend Green", 0, 255, 0, 6, 0);
-        board[6][0].hold = 0;
-        board[6][0].obstacle = true;
         console.log("Setup complete")
+}
+function startGame(players)
+{
+        characters = players;
+        hold = new Array(characters);
+        if (players > 0) {
+                hold[0] = new Item("character", "Reverend Green", 0, 255, 0, 6, 0);
+                board[6][0].hold = 0;
+                board[6][0].obstacle = true;    
+        } if (players > 1) {
+                hold[1] = new Item("character", "Miss Scarlet", 255, 36, 0, 12, 0);
+                board[12][0].hold = 1;
+                board[12][0].obstacle = true;
+        }
 }
 function generateBoard() 
 {
@@ -99,37 +190,40 @@ function verticalObstacleLine(start, end)
 // Draw graphics
 function draw() 
 {
-        // Tell each cell to show itself
+        // Draw board
         for (var i = 0; i < COLS; i++) {
                 for (var j = 0; j < ROWS; j++) { 
                         board[i][j].show(); 
                 }
         }
-        // Highlight where the player can go
-        if (mouseX < 480 && mouseY < 480) {
-                var x = Math.floor(mouseX / 480 * COLS);
-                var y = Math.floor(mouseY / 480 * ROWS);
-                if (path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
-                        gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b, 72);
-                        gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
-                }
-        }
-        // Character ticker
-        charactersGraphics.background(255);
-        for (var i = 0; i < characters; i++) {
-                ellipseMode(CENTER);
-                if (i == currentCharacter) {
-                        charactersGraphics.fill(hold[i].r, hold[i].g, hold[i].b);
-                } else {
-                        charactersGraphics.fill(hold[i].r, hold[i].g, hold[i].b, 72);
-                }
-                charactersGraphics.ellipse((12 + 24 * i), 12, 20);
-        }
-        // Ticker text
-        charactersGraphics.fill(0, 0, 0, 255);
-        charactersGraphics.text(hold[currentCharacter].name + "'s turn", 12 + 24 * characters, 18);
-        // Draw rooms
         drawBoardDetails();
+        // Draw game details
+        if (gameState == "inProgress") {
+                // Highlight where the player can go
+                if (mouseX < 480 && mouseY < 480) {
+                        var x = Math.floor(mouseX / 480 * COLS);
+                        var y = Math.floor(mouseY / 480 * ROWS);
+                        if (path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
+                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b, 72);
+                                gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        }
+                }
+                // Character ticker
+                charactersGraphics.background(255);
+                for (var i = 0; i < characters; i++) {
+                        ellipseMode(CENTER);
+                        if (i == currentCharacter) {
+                                charactersGraphics.fill(hold[i].r, hold[i].g, hold[i].b);
+                        } else {
+                                charactersGraphics.fill(hold[i].r, hold[i].g, hold[i].b, 72);
+                        }
+                        charactersGraphics.ellipse((12 + 24 * i), 12, 20);
+                }
+                // Ticker text
+                charactersGraphics.fill(0, 0, 0, 255);
+                charactersGraphics.text(hold[currentCharacter].name + "'s turn", 12 + 24 * characters, 18);
+        }
+        
         image(gridGraphics, 0, 0);
         image(charactersGraphics, 0, 480);
 }
@@ -217,7 +311,6 @@ function drawBoardDetails()
         gridGraphics.fill(255);
         gridGraphics.rect(384, 360, 96 -1, 120 -1);
 }
-
 function mousePressed() 
 {
         if (mouseX < 480 && mouseY < 480) {
@@ -231,7 +324,68 @@ function mousePressed()
         }
 }
 
-
+// Pathfinding algorithms
+function path(start, end) 
+{
+        // Initialise pathfinding variables
+        for (var i = 0; i < COLS; i++) { 
+                for (var j = 0; j < ROWS; j++) { 
+                        board[i][j].pathInit(); 
+                } 
+        }
+        var openSet = [];
+        var closedSet = [];
+        openSet.push(start);
+        // Keep searching until no more left
+        while (openSet.length > 0) {
+                var lowestIndex = 0;
+                for (var i = 0; i < openSet.length; i++) {
+                        if (openSet[i].f < openSet[lowestIndex].f) {
+                                lowestIndex = i;
+                        }
+                }
+                var current = openSet[lowestIndex];
+                if (openSet[lowestIndex] == end) {
+                        // Shortest path found, return length
+                        return openSet[lowestIndex].f;
+                }
+                removeFromArray(openSet, current);
+                closedSet.push(current);
+                var neighbours = current.n;
+                for (var i = 0; i < neighbours.length; i++) {
+                        var neighbour = neighbours[i];
+                        if (!closedSet.includes(neighbour) && !neighbour.obstacle) {
+                                var tentative_g = current.g + 1;
+                                if (openSet.includes(neighbour)) {
+                                        if (tentative_g < neighbour.g) {
+                                                neighbour.g = tentative_g;
+                                        }
+                                } else {
+                                        neighbour.g = tentative_g;
+                                        openSet.push(neighbour);
+                                }
+                        neighbour.h = heuristic(neighbour, end);
+                        neighbour.f = neighbour.g + neighbour.h;
+                        }
+                }
+        }
+        // No path found, return extreme length
+        return 100;
+}
+function heuristic (a, b)
+{
+        // Manhattan heuristic
+        return abs(a.i-b.i) + abs(a.j-a.j);
+}
+function removeFromArray (array, item) 
+{
+        // Go backwards through array, remove any items that are the same of the item passed
+        for (var i = array.length - 1; i >= 0; i--) {
+                if (array[i] == item) {
+                        array.splice(i, 1);
+                }
+        }
+}
 
 
 
