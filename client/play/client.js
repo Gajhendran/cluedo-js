@@ -339,7 +339,7 @@ function mousePressed()
                 var x = Math.floor(mouseX / 480 * COLS);
                 var y = Math.floor(mouseY / 480 * ROWS);
                 // If path short enough with respect to roll value and destination not an obstacle, move item
-                if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
+                if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && currentCharacter == clientCharacter) {
                         socket.emit('moveItem',currentCharacter, x, y);
                 }
         }
