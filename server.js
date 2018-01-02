@@ -15,6 +15,7 @@ var server = app.listen(process.env.PORT, function()
 // Start listening
 var io = sio.listen(server);
 var socketConnections = 0;
+var socketIds = [];
 var gameState = "notReady";
 
 // On new connection/disconnection
@@ -23,24 +24,38 @@ io.sockets.on('connection', function(socket)
         // Connection/Disconnection boring stuff
         console.log('New connection: ' + socket.id);
         socketConnections++;
+        socketIds.push(socket.id);
         console.log('Number of connections: ' + socketConnections);
         socket.on('disconnect', function()
         {
                 console.log('User disconnected: ' + socket.id);
                 socketConnections--;
+                removeFromArray(socketIds, socket.id);
                 console.log('Number of connections: ' + socketConnections);
         });
         // Ready game
         socket.on('readyGame', function()
         {
-                startGame(socketConnections);
-                io.sockets.emit('startGame', socketConnections);
+                if (gameState == 'notReady') {
+                        startGame(socketConnections);
+                        io.sockets.emit('startGame', socketConnections);
+                        gameState = 'inProgress';
+                }
+        });
+        socket.on('getClientCharacter', function()
+        {
+                socket.emit('newClientCharacter', socketIds.indexOf(socket.id));
+        })
+        // Update game state
+        socket.on('gatherGameState', function()
+        {
+                io.sockets.emit('newState', gameState);
         });
         // Move an item
         socket.on('moveItem', function(index, x, y)
         {
                 console.log('Req: move ' + hold[index].name + ' to position (' + x + ', ' + y + ')');
-                if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
+                if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && socket.id == hold[currentCharacter].socketId) {
                         // Empty the cell holding bay
                         board[hold[index].i][hold[index].j].hold = -1;
                         // Set old cell obstacle value to false
@@ -110,6 +125,7 @@ function Item(type, name, red, green, blue, i, j)
 {
         this.type = type;
         this.name = name;
+        this.socketId = undefined;
         this.r = red;
         this.g = green;
         this.b = blue;
@@ -182,11 +198,14 @@ function startGame(players)
         if (players > 0) {
                 hold[0] = new Item("character", "Reverend Green", 0, 255, 0, 6, 0);
                 board[6][0].hold = 0;
-                board[6][0].obstacle = true;    
+                board[6][0].obstacle = true;
         } if (players > 1) {
                 hold[1] = new Item("character", "Miss Scarlet", 255, 36, 0, 12, 0);
                 board[12][0].hold = 1;
                 board[12][0].obstacle = true;
+        }
+        for (i = 0; i < characters; i++) {
+                hold[i].socketId = socketIds[i];
         }
 }
 // Pathfinding functions

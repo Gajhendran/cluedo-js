@@ -15,10 +15,11 @@ var characters = 1;
 var hold = undefined;
 var rollValue = 6;
 var currentCharacter = 0;
-var gameState = "notReady";
+var gameState = undefined;
 const MAJOR_MISC_WIDTH = 480;
 const MAJOR_MISC_HEIGHT = 480;
 var socket = io.connect("https://cluedo-js-tomkuson.c9users.io");
+var clientCharacter = undefined;
 
 function Cell(i, j) 
 {
@@ -85,12 +86,22 @@ function Item(type, name, red, green, blue, i, j)
 function preload() 
 {
         console.log("Fetching assets...");
+        socket.on('newState', function(newState)
+        {
+                gameState = newState;
+        });
+        socket.emit('gatherGameState');
         console.log("Placing listeners...");
         socket.on('startGame', function(players)
         {
                 startGame(players);
                 gameState = 'inProgress';
+                socket.emit('getClientCharacter');
                 window.alert('Game started with ' + players + ' number of players');
+        });
+        socket.on('newClientCharacter', function(holdValue)
+        {
+                clientCharacter = holdValue;
         });
         socket.on('clientMoveItem', function(index, x, y)
         {
@@ -209,7 +220,7 @@ function draw()
         // Draw game details
         if (gameState == "inProgress") {
                 // Highlight where the player can go
-                if (mouseX < 480 && mouseY < 480) {
+                if (mouseX < 480 && mouseY < 480 && currentCharacter == clientCharacter) {
                         var x = Math.floor(mouseX / 480 * COLS);
                         var y = Math.floor(mouseY / 480 * ROWS);
                         if (path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
