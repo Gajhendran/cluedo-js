@@ -10,10 +10,6 @@ var server = app.listen(process.env.PORT, function()
         console.log('Started serving');
         generateBoard();
         console.log("Generated board");
-        hold[0] = new Item("character", "Reverend Green", 0, 255, 0, 6, 0);
-        board[6][0].hold = 0;
-        board[6][0].obstacle = true;
-        console.log("Placed characters");
 });
 
 // Start listening
@@ -37,6 +33,7 @@ io.sockets.on('connection', function(socket)
         // Ready game
         socket.on('readyGame', function()
         {
+                startGame(socketConnections);
                 io.sockets.emit('startGame', socketConnections);
         });
         // Move an item
@@ -72,8 +69,6 @@ io.sockets.on('connection', function(socket)
 const COLS = 20;
 const ROWS = 20;
 var board = undefined;
-var characters = 1;
-var hold = new Array(characters);
 var rollValue = 6;
 var currentCharacter = 0;
 // Objects
@@ -175,6 +170,20 @@ function verticalObstacleLine(start, end)
         var length = end.j - start.j
         for (i = 0; i <= length; i++) {
                 board[start.i][start.j + i].obstacle = true;
+        }
+}
+function startGame(players)
+{
+        characters = players;
+        hold = new Array(characters);
+        if (players > 0) {
+                hold[0] = new Item("character", "Reverend Green", 0, 255, 0, 6, 0);
+                board[6][0].hold = 0;
+                board[6][0].obstacle = true;    
+        } if (players > 1) {
+                hold[1] = new Item("character", "Miss Scarlet", 255, 36, 0, 12, 0);
+                board[12][0].hold = 1;
+                board[12][0].obstacle = true;
         }
 }
 // Pathfinding functions

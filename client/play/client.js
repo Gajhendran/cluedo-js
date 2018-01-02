@@ -88,6 +88,8 @@ function preload()
         console.log("Placing listeners...");
         socket.on('startGame', function(players)
         {
+                startGame(players);
+                gameState = 'inProgress';
                 window.alert('Game started with ' + players + ' number of players');
         });
         socket.on('clientMoveItem', function(index, x, y)
