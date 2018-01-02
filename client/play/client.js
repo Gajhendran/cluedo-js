@@ -86,6 +86,10 @@ function preload()
 {
         console.log("Fetching assets...");
         console.log("Placing listeners...");
+        socket.on('startGame', function(players)
+        {
+                window.alert('Game started with ' + players + ' number of players');
+        });
         socket.on('clientMoveItem', function(index, x, y)
         {
                 // Empty the cell holding bay
@@ -326,6 +330,9 @@ function mousePressed()
                 if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
                         socket.emit('moveItem',currentCharacter, x, y);
                 }
+        }
+        if (mouseX > 480 && mouseY < 480) {
+                socket.emit('readyGame');
         }
 }
 

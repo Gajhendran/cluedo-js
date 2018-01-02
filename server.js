@@ -19,6 +19,7 @@ var server = app.listen(process.env.PORT, function()
 // Start listening
 var io = sio.listen(server);
 var socketConnections = 0;
+var gameState = "notReady";
 
 // On new connection/disconnection
 io.sockets.on('connection', function(socket)
@@ -32,6 +33,11 @@ io.sockets.on('connection', function(socket)
                 console.log('User disconnected: ' + socket.id);
                 socketConnections--;
                 console.log('Number of connections: ' + socketConnections);
+        });
+        // Ready game
+        socket.on('readyGame', function()
+        {
+                io.sockets.emit('startGame', socketConnections);
         });
         // Move an item
         socket.on('moveItem', function(index, x, y)
