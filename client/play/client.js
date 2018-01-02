@@ -105,11 +105,10 @@ function preload()
                 board[x][y].hold = index;
                 // Set new cell obstacle value to true
                 board[x][y].obstacle = true;
-                if (currentCharacter < characters - 1) {
-                        currentCharacter++;
-                } else {
-                        currentCharacter = 0;
-                }
+        });
+        socket.on('currentCharacterUpdate', function(update)
+        {
+                currentCharacter = update;
         });
 }
 

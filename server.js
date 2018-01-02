@@ -59,6 +59,7 @@ io.sockets.on('connection', function(socket)
                         }
                         console.log('Move committed')
                         io.sockets.emit('clientMoveItem', index, x, y);
+                        io.sockets.emit('currentCharacterUpdate', currentCharacter);
                 } else {
                         console.log('Move denied')
                 }
@@ -71,6 +72,8 @@ const ROWS = 20;
 var board = undefined;
 var rollValue = 6;
 var currentCharacter = 0;
+var characters = undefined;
+var hold = undefined;
 // Objects
 function Cell(i, j) 
 {
