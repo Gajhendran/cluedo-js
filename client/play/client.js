@@ -23,6 +23,7 @@ var clientCharacter = undefined;
 var connections = 1;
 var readyStatus = "NOT READY";
 var readyClients = 0;
+var test = false;
 
 function Cell(i, j) 
 {
@@ -104,6 +105,9 @@ function preload()
         socket.on('newClientCharacter', function(holdValue)
         {
                 clientCharacter = holdValue;
+                console.log('client character ' + clientCharacter);
+                test = true;
+                
         });
         socket.on('clientMoveItem', function(index, x, y)
         {
@@ -158,7 +162,12 @@ function startGame(players)
                 hold[1] = new Item("character", "Miss Scarlet", 255, 36, 0, 12, 0);
                 board[12][0].hold = 1;
                 board[12][0].obstacle = true;
+        } if (players > 2) {
+                hold[2] = new Item("character", "Mrs Peacock", 9, 84, 190, 6, 19);
+                board[6][19].hold = 2;
+                board[6][19].obstacle = true;
         }
+        console.log(hold);
 }
 function generateBoard() 
 {
@@ -263,8 +272,8 @@ function draw()
                         majorMiscGraphics.text('Click here say you are ready!', 60, 130);
                 }
         }
-        if (gameState == "inProgress") {
-                majorMiscGraphics.text('Game started with ' + players + ' number of players', 30, 30);
+        if (gameState == "inProgress" && test) {
+                majorMiscGraphics.text('Game started with ' + characters + ' number of players', 30, 30);
                 majorMiscGraphics.text('Your character is ' + hold[clientCharacter].name, 30, 50);
         }
         image(gridGraphics, 0, 0);

@@ -47,6 +47,7 @@ io.sockets.on('connection', function(socket)
                 if (!socketReady) {
                         readyClients++;
                         io.sockets.emit('readyClients', readyClients);
+                        console.log(socket.id + ' ready');
                 }
                 if (gameState == 'notReady' && readyClients == socketConnections) {
                         startGame(socketConnections);
@@ -215,6 +216,10 @@ function startGame(players)
                 hold[1] = new Item("character", "Miss Scarlet", 255, 36, 0, 12, 0);
                 board[12][0].hold = 1;
                 board[12][0].obstacle = true;
+        } if (players > 2) {
+                hold[2] = new Item("character", "Mrs Peacock", 9, 84, 190, 6, 19);
+                board[6][19].hold = 2;
+                board[6][19].obstacle = true;
         }
         for (i = 0; i < characters; i++) {
                 hold[i].socketId = socketIds[i];
