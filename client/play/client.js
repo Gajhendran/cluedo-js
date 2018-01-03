@@ -23,7 +23,7 @@ var clientCharacter = undefined;
 var connections = 1;
 var readyStatus = "NOT READY";
 var readyClients = 0;
-var test = false;
+var gotClientHoldValue = false;
 
 function Cell(i, j) 
 {
@@ -272,7 +272,7 @@ function draw()
                         majorMiscGraphics.text('Click here say you are ready!', 60, 130);
                 }
         }
-        if (gameState == "inProgress" && test) {
+        if (gameState == "inProgress" && gotClientHoldValue) {
                 majorMiscGraphics.text('Game started with ' + characters + ' number of players', 30, 30);
                 majorMiscGraphics.text('Your character is ' + hold[clientCharacter].name, 30, 50);
         }
