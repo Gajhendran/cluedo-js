@@ -17,6 +17,7 @@ var io = sio.listen(server);
 var socketConnections = 0;
 var socketIds = [];
 var gameState = "notReady";
+var readyClients = 0;
 
 // On new connection/disconnection
 io.sockets.on('connection', function(socket)
@@ -25,18 +26,29 @@ io.sockets.on('connection', function(socket)
         console.log('New connection: ' + socket.id);
         socketConnections++;
         socketIds.push(socket.id);
+        io.sockets.emit('connectionsUpdate', socketConnections);
         console.log('Number of connections: ' + socketConnections);
+        var socketReady = false;
         socket.on('disconnect', function()
         {
                 console.log('User disconnected: ' + socket.id);
                 socketConnections--;
+                if (socketReady) {
+                        readyClients--;
+                        io.sockets.emit('readyClients', readyClients);
+                }
+                io.sockets.emit('connectionsUpdate', socketConnections);
                 removeFromArray(socketIds, socket.id);
                 console.log('Number of connections: ' + socketConnections);
         });
         // Ready game
         socket.on('readyGame', function()
         {
-                if (gameState == 'notReady') {
+                if (!socketReady) {
+                        readyClients++;
+                        io.sockets.emit('readyClients', readyClients);
+                }
+                if (gameState == 'notReady' && readyClients == socketConnections) {
                         startGame(socketConnections);
                         io.sockets.emit('startGame', socketConnections);
                         gameState = 'inProgress';

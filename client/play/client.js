@@ -20,6 +20,9 @@ const MAJOR_MISC_WIDTH = 480;
 const MAJOR_MISC_HEIGHT = 480;
 var socket = io.connect("https://cluedo-js-tomkuson.c9users.io");
 var clientCharacter = undefined;
+var connections = 1;
+var readyStatus = "NOT READY";
+var readyClients = 0;
 
 function Cell(i, j) 
 {
@@ -97,7 +100,6 @@ function preload()
                 startGame(players);
                 gameState = 'inProgress';
                 socket.emit('getClientCharacter');
-                window.alert('Game started with ' + players + ' number of players');
         });
         socket.on('newClientCharacter', function(holdValue)
         {
@@ -121,6 +123,14 @@ function preload()
         {
                 currentCharacter = update;
         });
+        socket.on('connectionsUpdate', function(update)
+        {
+                connections = update;
+        });
+        socket.on('readyClients', function(update)
+        {
+                readyClients = update;
+        })
 }
 
 // Setup game    
@@ -216,7 +226,6 @@ function draw()
                 }
         }
         drawBoardDetails();
-        majorMiscGraphics.background(200);
         // Draw game details
         if (gameState == "inProgress") {
                 // Highlight where the player can go
@@ -243,7 +252,21 @@ function draw()
                 charactersGraphics.fill(0, 0, 0, 255);
                 charactersGraphics.text(hold[currentCharacter].name + "'s turn", 12 + 24 * characters, 18);
         }
-        
+        // Draw major misc
+        majorMiscGraphics.background(255);
+        if (gameState == "notReady") {
+                majorMiscGraphics.text(readyClients + ' out of ' + connections + ' clients are ready', 30, 30);
+                majorMiscGraphics.text('Game will start when all players are ready', 30, 50);
+                majorMiscGraphics.text('Click READY when you are ready to play', 30, 70);
+                majorMiscGraphics.text('Your client status: ' + readyStatus, 30, 90);
+                if (readyStatus == "NOT READY") {
+                        majorMiscGraphics.text('Click here say you are ready!', 60, 130);
+                }
+        }
+        if (gameState == "inProgress") {
+                majorMiscGraphics.text('Game started with ' + players + ' number of players', 30, 30);
+                majorMiscGraphics.text('Your character is ' + hold[clientCharacter].name, 30, 50);
+        }
         image(gridGraphics, 0, 0);
         image(charactersGraphics, 0, 480);
         image(majorMiscGraphics, 480, 0);
@@ -343,8 +366,10 @@ function mousePressed()
                         socket.emit('moveItem',currentCharacter, x, y);
                 }
         }
-        if (mouseX > 480 && mouseY < 480) {
+        // Ready game
+        if (mouseX > 480 + 55 && mouseX < 480 + 55 + 200 && mouseY > 110 && mouseY < 135) {
                 socket.emit('readyGame');
+                readyStatus = "READY";
         }
 }
 
