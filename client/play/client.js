@@ -309,7 +309,7 @@ function drawBoardDetails()
         gridGraphics.textAlign(CENTER);
         gridGraphics.strokeWeight(0);
         gridGraphics.fill(255);
-        gridGraphics.text('Cluedo', 192+4, 168, 96, 48);
+        //gridGraphics.text('Cluedo', 192+4, 168, 96, 48);
         gridGraphics.strokeWeight(1);
         // Library
         gridGraphics.fill(0,0,0);
