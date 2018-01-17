@@ -106,7 +106,7 @@ function preload()
         {
                 clientCharacter = holdValue;
                 console.log('client character ' + clientCharacter);
-                test = true;
+                gotClientHoldValue = true;
                 
         });
         socket.on('clientMoveItem', function(index, x, y)
@@ -135,6 +135,11 @@ function preload()
         {
                 readyClients = update;
         })
+        socket.on('rollValue', function(roll)
+        {
+                rollValue = roll;
+                console.log('New roll value from server: ' + rollValue);
+        });
 }
 
 // Setup game    
@@ -275,6 +280,11 @@ function draw()
         if (gameState == "inProgress" && gotClientHoldValue) {
                 majorMiscGraphics.text('Game started with ' + characters + ' number of players', 30, 30);
                 majorMiscGraphics.text('Your character is ' + hold[clientCharacter].name, 30, 50);
+                if (clientCharacter == currentCharacter) {
+                        majorMiscGraphics.text('You rolled a ' + rollValue, 30, 70);
+                } else {
+                        majorMiscGraphics.text(hold[currentCharacter].name + ' rolled a ' + rollValue, 30, 70);
+                }
         }
         image(gridGraphics, 0, 0);
         image(charactersGraphics, 0, 480);
@@ -444,6 +454,3 @@ function removeFromArray (array, item)
                 }
         }
 }
-
-
-

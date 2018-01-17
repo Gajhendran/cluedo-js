@@ -10,6 +10,13 @@ var server = app.listen(process.env.PORT, function()
         console.log('Started serving');
         generateBoard();
         console.log("Generated board");
+        console.log("Shuffle test");
+        var testArray = ["one", "two", "three", "four", "five"];
+        console.log(testArray);
+        testArray = shuffle(testArray);
+        console.log(testArray);
+        testArray = shuffle(testArray);
+        console.log(testArray);
 });
 
 // Start listening
@@ -52,6 +59,9 @@ io.sockets.on('connection', function(socket)
                 if (gameState == 'notReady' && readyClients == socketConnections) {
                         startGame(socketConnections);
                         io.sockets.emit('startGame', socketConnections);
+                        rollValue = rollDice(6);
+                        io.sockets.emit('rollValue', rollValue);
+                        console.log('Rolled dice: ' + rollValue);
                         gameState = 'inProgress';
                 }
         });
@@ -88,6 +98,7 @@ io.sockets.on('connection', function(socket)
                         console.log('Move committed')
                         io.sockets.emit('clientMoveItem', index, x, y);
                         io.sockets.emit('currentCharacterUpdate', currentCharacter);
+                        nextTurn();
                 } else {
                         console.log('Move denied')
                 }
@@ -225,6 +236,30 @@ function startGame(players)
                 hold[i].socketId = socketIds[i];
         }
 }
+function nextTurn()
+{
+        rollValue = rollDice(6);
+        io.sockets.emit('rollValue', rollValue);
+        console.log('Rolled dice: ' + rollValue);
+}
+function shuffle(array)
+{
+        var shuffledArray = [];
+        var items = array.length;
+        var i = undefined;
+        var elt = undefined;
+        // While items exist to shuffle
+        while (items) {
+                // Pick item from remaining array
+                i = Math.floor(Math.random() * items);
+                items--;
+                // Take it
+                elt = array.splice(i, 1)
+                // Push it to new array
+                shuffledArray.push(elt[0]);
+        }
+        return shuffledArray;
+}
 // Pathfinding functions
 function path(start, end) 
 {
@@ -294,4 +329,9 @@ function abs(number)
         } else {
                 return number;
         }
+}
+function rollDice(sides)
+{
+        var roll = Math.floor(Math.random() * sides) + 1;
+        return roll;
 }
