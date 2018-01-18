@@ -10,13 +10,6 @@ var server = app.listen(process.env.PORT, function()
         console.log('Started serving');
         generateBoard();
         console.log("Generated board");
-        console.log("Shuffle test");
-        var testArray = ["one", "two", "three", "four", "five"];
-        console.log(testArray);
-        testArray = shuffle(testArray);
-        console.log(testArray);
-        testArray = shuffle(testArray);
-        console.log(testArray);
 });
 
 // Start listening
@@ -113,6 +106,12 @@ var rollValue = 6;
 var currentCharacter = 0;
 var characters = undefined;
 var hold = undefined;
+var envelope = ['murderer', 'weapon', 'room'];
+var suspectCards = ['Colonel Mustard', 'Professor Plum', 'Mr Green', 'Mrs Peacock', 'Miss Scarlet', 'Dr Orchid'];
+var weaponCards = ['Knife', 'Candlestick', 'Revolver', 'Rope', 'Lead pipe', 'Spanner'];
+var roomCards = ['Hall', 'Lounge', 'Dining room', 'Kitchen', 'Ballroom', 'Conservatory', 'Billiard room', 'Library', 'Study'];
+var cardsCollated = [];
+var hands = undefined;
 // Objects
 function Cell(i, j) 
 {
@@ -217,6 +216,7 @@ function verticalObstacleLine(start, end)
 }
 function startGame(players)
 {
+        // Create characters and place on board
         characters = players;
         hold = new Array(characters);
         if (players > 0) {
@@ -232,9 +232,37 @@ function startGame(players)
                 board[6][19].hold = 2;
                 board[6][19].obstacle = true;
         }
-        for (i = 0; i < characters; i++) {
+        for (var i = 0; i < characters; i++) {
                 hold[i].socketId = socketIds[i];
         }
+        // Shuffle cards
+        suspectCards = shuffle(suspectCards);
+        weaponCards = shuffle(weaponCards);
+        roomCards = shuffle(roomCards);
+        envelope[0] = suspectCards.splice(0, 1);
+        envelope[1] = weaponCards.splice(0, 1);
+        envelope[2] = roomCards.splice(0, 1);
+        console.log("Murderer: " + envelope[0]);
+        console.log("Weapon: " + envelope[1]);
+        console.log("Room: " + envelope[2]);
+        // Collate cards and shuffle
+        console.log("Start handing out cards...");
+        console.log(cardsCollated);
+        cardsCollated = suspectCards.concat(weaponCards);
+        cardsCollated = cardsCollated.concat(roomCards);
+        cardsCollated = shuffle(cardsCollated);
+        console.log(cardsCollated);
+        hands = new Array(characters);
+        for (var i = 0; i < characters; i++) {
+                hands[i] = [];
+        }
+        console.log(hands)
+        handOut(cardsCollated);
+        for (var i = 0; i < characters; i++) {
+                console.log(hands[i]);
+        }
+        // Send them to the clients
+        updateDecks();
 }
 function nextTurn()
 {
@@ -259,6 +287,36 @@ function shuffle(array)
                 shuffledArray.push(elt[0]);
         }
         return shuffledArray;
+}
+function handOut(array)
+{
+        var items = array.length;
+        var i = 0;
+        var elt = undefined;
+        while (items) {
+                elt = array.splice(0, 1);
+                hands[i].push(elt[0]);
+                items--;
+                if (i < characters - 1) {
+                        i++;
+                } else {
+                        i = 0;
+                }
+        }
+}
+function updateDecks()
+{
+        var client = undefined;
+        // For every player
+        for (var i = 0; i < characters; i++) {
+                var deckSize = hands[i].length;
+                // Store their client id
+                client = hold[i].socketId;
+                for (var j = 0; j < deckSize; j++) {
+                        // Send one card at a time to client
+                        io.to(client).emit('newCard', hands[i][j]);
+                }
+        }
 }
 // Pathfinding functions
 function path(start, end) 

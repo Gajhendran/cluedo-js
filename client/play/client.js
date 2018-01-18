@@ -24,6 +24,7 @@ var connections = 1;
 var readyStatus = "NOT READY";
 var readyClients = 0;
 var gotClientHoldValue = false;
+var clientHand = [];
 
 function Cell(i, j) 
 {
@@ -85,7 +86,6 @@ function Item(type, name, red, green, blue, i, j)
                 gridGraphics.rect(this.i * (GRID_WIDTH / COLS), this.j * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
         }
 }
-
 // Load game assets
 function preload() 
 {
@@ -139,6 +139,10 @@ function preload()
         {
                 rollValue = roll;
                 console.log('New roll value from server: ' + rollValue);
+        });
+        socket.on('newCard', function(card)
+        {
+                clientHand.push(card);
         });
 }
 
@@ -284,6 +288,10 @@ function draw()
                         majorMiscGraphics.text('You rolled a ' + rollValue, 30, 70);
                 } else {
                         majorMiscGraphics.text(hold[currentCharacter].name + ' rolled a ' + rollValue, 30, 70);
+                }
+                majorMiscGraphics.text('The cards in your (private) hand are:', 30, 90);
+                for (var i = 0; i < clientHand.length; i++) {
+                        majorMiscGraphics.text(clientHand[i], 50, 110 + i*20);
                 }
         }
         image(gridGraphics, 0, 0);
