@@ -1,0 +1,8 @@
+Code comments:- Making accusations
+0. Next turn button on client
+        * Draw text on ticker buffer
+        * Change move item code on server so that it doesn't change the current character (nextTurn function)
+        * Have client send next turn when button clicked
+        * Test!
+        * SHIT!! -- players can move around all they want, need to store if they have already moved
+        * movedPeice variable

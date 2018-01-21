@@ -17,6 +17,7 @@ var io = sio.listen(server);
 var socketConnections = 0;
 var socketIds = [];
 var gameState = "notReady";
+var movedPeice = false;
 var readyClients = 0;
 
 // On new connection/disconnection
@@ -71,7 +72,7 @@ io.sockets.on('connection', function(socket)
         socket.on('moveItem', function(index, x, y)
         {
                 console.log('Req: move ' + hold[index].name + ' to position (' + x + ', ' + y + ')');
-                if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && socket.id == hold[currentCharacter].socketId) {
+                if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && socket.id == hold[currentCharacter].socketId && !movedPeice) {
                         // Empty the cell holding bay
                         board[hold[index].i][hold[index].j].hold = -1;
                         // Set old cell obstacle value to false
@@ -83,18 +84,17 @@ io.sockets.on('connection', function(socket)
                         board[x][y].hold = index;
                         // Set new cell obstacle value to true
                         board[x][y].obstacle = true;
-                        if (currentCharacter < characters - 1) {
-                                currentCharacter++
-                        } else {
-                                currentCharacter = 0
-                        }
                         console.log('Move committed')
+                        movedPeice = true;
                         io.sockets.emit('clientMoveItem', index, x, y);
-                        io.sockets.emit('currentCharacterUpdate', currentCharacter);
-                        nextTurn();
                 } else {
                         console.log('Move denied')
                 }
+        });
+        // Next turn
+        socket.on('nextTurn', function()
+        {
+                nextTurn();
         });
 });
 
@@ -266,6 +266,13 @@ function startGame(players)
 }
 function nextTurn()
 {
+        if (currentCharacter < characters - 1) {
+                currentCharacter++;
+        } else {
+                currentCharacter = 0;
+        }
+        io.sockets.emit('currentCharacterUpdate', currentCharacter);
+        movedPeice = false;
         rollValue = rollDice(6);
         io.sockets.emit('rollValue', rollValue);
         console.log('Rolled dice: ' + rollValue);

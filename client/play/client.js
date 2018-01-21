@@ -25,6 +25,7 @@ var readyStatus = "NOT READY";
 var readyClients = 0;
 var gotClientHoldValue = false;
 var clientHand = [];
+var movedPeice = false;
 
 function Cell(i, j) 
 {
@@ -122,10 +123,12 @@ function preload()
                 board[x][y].hold = index;
                 // Set new cell obstacle value to true
                 board[x][y].obstacle = true;
+                movedPeice = true;
         });
         socket.on('currentCharacterUpdate', function(update)
         {
                 currentCharacter = update;
+                movedPeice = false;
         });
         socket.on('connectionsUpdate', function(update)
         {
@@ -144,6 +147,7 @@ function preload()
         {
                 clientHand.push(card);
         });
+
 }
 
 // Setup game    
@@ -247,7 +251,7 @@ function draw()
         // Draw game details
         if (gameState == "inProgress") {
                 // Highlight where the player can go
-                if (mouseX < 480 && mouseY < 480 && currentCharacter == clientCharacter) {
+                if (mouseX < 480 && mouseY < 480 && currentCharacter == clientCharacter && !movedPeice) {
                         var x = Math.floor(mouseX / 480 * COLS);
                         var y = Math.floor(mouseY / 480 * ROWS);
                         if (path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
@@ -269,6 +273,10 @@ function draw()
                 // Ticker text
                 charactersGraphics.fill(0, 0, 0, 255);
                 charactersGraphics.text(hold[currentCharacter].name + "'s turn", 12 + 24 * characters, 18);
+                // Next turn
+                if (currentCharacter == clientCharacter) {
+                        charactersGraphics.text("End turn", 400, 18);
+                }
         }
         // Draw major misc
         majorMiscGraphics.background(255);
@@ -389,7 +397,7 @@ function mousePressed()
                 var x = Math.floor(mouseX / 480 * COLS);
                 var y = Math.floor(mouseY / 480 * ROWS);
                 // If path short enough with respect to roll value and destination not an obstacle, move item
-                if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && currentCharacter == clientCharacter) {
+                if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && currentCharacter == clientCharacter && !movedPeice) {
                         socket.emit('moveItem',currentCharacter, x, y);
                 }
         }
@@ -397,6 +405,10 @@ function mousePressed()
         if (mouseX > 480 + 55 && mouseX < 480 + 55 + 200 && mouseY > 110 && mouseY < 135) {
                 socket.emit('readyGame');
                 readyStatus = "READY";
+        }
+        // Next turn
+        if (mouseX > 390 && mouseX < 460 && mouseY > 480) {
+                socket.emit('nextTurn');
         }
 }
 
