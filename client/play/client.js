@@ -26,6 +26,8 @@ var readyClients = 0;
 var gotClientHoldValue = false;
 var clientHand = [];
 var movedPeice = false;
+var selectingScenario = false;
+var scenario = ["", "", ""];
 
 function Cell(i, j) 
 {
@@ -290,16 +292,34 @@ function draw()
                 }
         }
         if (gameState == "inProgress" && gotClientHoldValue) {
-                majorMiscGraphics.text('Game started with ' + characters + ' number of players', 30, 30);
-                majorMiscGraphics.text('Your character is ' + hold[clientCharacter].name, 30, 50);
-                if (clientCharacter == currentCharacter) {
-                        majorMiscGraphics.text('You rolled a ' + rollValue, 30, 70);
+                if (selectingScenario) {
+                        majorMiscGraphics.text('MAKING ACCUSATION', 30, 30);
+                        majorMiscGraphics.text('Selection ONE card from each category', 30, 50);
+                        if (scenario[0].length < 1) {
+                                // Choose suspect
+                                majorMiscGraphics.text('Suspects:', 30, 70);
+                                majorMiscGraphics.text('Colonel Mustard', 50, 90);
+                                majorMiscGraphics.text('Professor Plum', 50, 110);
+                                majorMiscGraphics.text('Mr Green', 50, 130);
+                                majorMiscGraphics.text('Mrs Peacock', 50, 150);
+                                majorMiscGraphics.text('Miss Scarlet', 50, 170);
+                                majorMiscGraphics.text('Dr Orchid', 50, 190);
+                        }
+                        
                 } else {
-                        majorMiscGraphics.text(hold[currentCharacter].name + ' rolled a ' + rollValue, 30, 70);
-                }
-                majorMiscGraphics.text('The cards in your (private) hand are:', 30, 90);
-                for (var i = 0; i < clientHand.length; i++) {
-                        majorMiscGraphics.text(clientHand[i], 50, 110 + i*20);
+                        majorMiscGraphics.text('Game started with ' + characters + ' number of players', 30, 30);
+                        majorMiscGraphics.text('Your character is ' + hold[clientCharacter].name, 30, 50);
+                        if (clientCharacter == currentCharacter) {
+                                majorMiscGraphics.text('You rolled a ' + rollValue, 30, 70);
+                        } else {
+                                majorMiscGraphics.text(hold[currentCharacter].name + ' rolled a ' + rollValue, 30, 70);
+                        }
+                        majorMiscGraphics.text('The cards in your (private) hand are:', 30, 90);
+                        for (var i = 0; i < clientHand.length; i++) {
+                                majorMiscGraphics.text(clientHand[i], 50, 110 + i*20);
+                        }
+                        majorMiscGraphics.text('Click here to MAKE AN SUGGESTION (one per turn)', 30, 110 + clientHand.length * 20 + 20);
+                        majorMiscGraphics.text('Click here to MAKE A ACCUSATION (may end game)', 30, 110 + clientHand.length * 20 + 40);
                 }
         }
         image(gridGraphics, 0, 0);
@@ -409,6 +429,10 @@ function mousePressed()
         // Next turn
         if (mouseX > 390 && mouseX < 460 && mouseY > 480) {
                 socket.emit('nextTurn');
+        }
+        // Accusation
+        if (mouseX > 480 + 30 && mouseX < 480 + 30 + 300 && mouseY > 110 + clientHand.length * 20 + 20 && mouseY < 110 + clientHand.length * 20 + 40 && currentCharacter == clientCharacter) {
+                selectingScenario = true;
         }
 }
 
