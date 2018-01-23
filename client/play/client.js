@@ -27,7 +27,11 @@ var gotClientHoldValue = false;
 var clientHand = [];
 var movedPeice = false;
 var selectingScenario = false;
+var scenarioContext = undefined;
 var scenario = ["", "", ""];
+var suspectCards = ['Colonel Mustard', 'Professor Plum', 'Mr Green', 'Mrs Peacock', 'Miss Scarlet', 'Dr Orchid'];
+var weaponCards = ['Knife', 'Candlestick', 'Revolver', 'Rope', 'Lead pipe', 'Spanner'];
+var roomCards = ['Hall', 'Lounge', 'Dining room', 'Kitchen', 'Ballroom', 'Conservatory', 'Billiard room', 'Library', 'Study'];
 
 function Cell(i, j) 
 {
@@ -296,14 +300,23 @@ function draw()
                         majorMiscGraphics.text('MAKING ACCUSATION', 30, 30);
                         majorMiscGraphics.text('Selection ONE card from each category', 30, 50);
                         if (scenario[0].length < 1) {
-                                // Choose suspect
-                                majorMiscGraphics.text('Suspects:', 30, 70);
-                                majorMiscGraphics.text('Colonel Mustard', 50, 90);
-                                majorMiscGraphics.text('Professor Plum', 50, 110);
-                                majorMiscGraphics.text('Mr Green', 50, 130);
-                                majorMiscGraphics.text('Mrs Peacock', 50, 150);
-                                majorMiscGraphics.text('Miss Scarlet', 50, 170);
-                                majorMiscGraphics.text('Dr Orchid', 50, 190);
+                                // List suspects
+                                for (var i = 0; i < suspectCards.length; i++) {
+                                        majorMiscGraphics.text(suspectCards[i], 60, 70 + 20*i);
+                                }
+                        } else if (scenario[1].length < 1) {
+                                // List weapons
+                                for (var i = 0; i < weaponCards.length; i++) {
+                                        majorMiscGraphics.text(weaponCards[i], 60, 70 + 20*i);
+                                }
+                        } else if (scenario[2].length < 1) {
+                                // List rooms
+                                for (var i = 0; i < roomCards.length; i++) {
+                                        majorMiscGraphics.text(roomCards[i], 60, 70 + 20*i);
+                                }
+                        } else {
+                                // Error, all cards already chosen
+                                majorMiscGraphics.text('All scenario cards chosen...', 30, 70);
                         }
                         
                 } else {
@@ -422,17 +435,48 @@ function mousePressed()
                 }
         }
         // Ready game
-        if (mouseX > 480 + 55 && mouseX < 480 + 55 + 200 && mouseY > 110 && mouseY < 135) {
-                socket.emit('readyGame');
-                readyStatus = "READY";
+        if (gameState == "notReady") {
+                if (mouseX > 480 + 55 && mouseX < 480 + 55 + 200 && mouseY > 110 && mouseY < 135) {
+                        socket.emit('readyGame');
+                        readyStatus = "READY";
+                }
         }
         // Next turn
-        if (mouseX > 390 && mouseX < 460 && mouseY > 480) {
+        if (mouseX > 390 && mouseX < 460 && mouseY > 480 && clientCharacter == clientHand && gameState == 'inProgress') {
                 socket.emit('nextTurn');
         }
-        // Accusation
-        if (mouseX > 480 + 30 && mouseX < 480 + 30 + 300 && mouseY > 110 + clientHand.length * 20 + 20 && mouseY < 110 + clientHand.length * 20 + 40 && currentCharacter == clientCharacter) {
-                selectingScenario = true;
+        // Major Misc
+        if (!selectingScenario) {
+                if (mouseX > 480 + 30 && mouseX < 480 + 30 + 300 && mouseY > 110 + clientHand.length * 20 + 20 && mouseY < 110 + clientHand.length * 20 + 40 && currentCharacter == clientCharacter) {
+                        // Make an accusation
+                        scenarioContext = "accusation";
+                        selectingScenario = true;
+                }
+        } else {
+                // Chose cards
+                if (scenario[0].length < 1) {
+                        // Chosing a suspect
+                        if (mouseX > 540 && mouseX < 700 && mouseY > 50 && mouseY < suspectCards.length * 20 + 55) {
+                                var index = Math.floor((mouseY - 55)/20);
+                                scenario[0] = suspectCards[index];
+                        }
+                } else if (scenario[1].length < 1) {
+                        // Chosing a weapon
+                        if (mouseX > 540 && mouseX < 700 && mouseY > 50 && mouseY < weaponCards.length * 20 + 55) {
+                                var index = Math.floor((mouseY - 55)/20);
+                                scenario[1] = weaponCards[index];
+                        }
+                } else if (scenario[2].length < 2) {
+                        // Chosing a room
+                        if (mouseX > 540 && mouseX < 700 && mouseY > 50 && mouseY < roomCards.length * 20 + 55) {
+                                var index = Math.floor((mouseY - 55)/20);
+                                scenario[2] = roomCards[index];
+                                if (scenarioContext == "accusation") {
+                                        window.alert(scenario);
+                                        socket.emit('makeAccusation', scenario[0], scenario[1], scenario[2]);
+                                }
+                        }
+                }
         }
 }
 
