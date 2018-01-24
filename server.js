@@ -90,6 +90,7 @@ io.sockets.on('connection', function(socket)
                 } else {
                         console.log('Move denied')
                 }
+                console.log(playersOut)
         });
         // Next turn
         socket.on('nextTurn', function()
@@ -106,7 +107,8 @@ io.sockets.on('connection', function(socket)
                 } else {
                         // Accusation incorrect...
                         io.sockets.emit('accusationIncorrect');
-                        console.log(socket + ' (' + hold[currentCharacter].name + ') has won!');
+                        playersOut.push(currentCharacter);
+                        console.log(socket.id + ' (' + hold[currentCharacter].name + ') made a false accusation!');
                 }
         });
 });
@@ -125,6 +127,7 @@ var weaponCards = ['Knife', 'Candlestick', 'Revolver', 'Rope', 'Lead pipe', 'Spa
 var roomCards = ['Hall', 'Lounge', 'Dining room', 'Kitchen', 'Ballroom', 'Conservatory', 'Billiard room', 'Library', 'Study'];
 var cardsCollated = [];
 var hands = undefined;
+var playersOut = [""];
 // Objects
 function Cell(i, j) 
 {
@@ -279,10 +282,9 @@ function startGame(players)
 }
 function nextTurn()
 {
-        if (currentCharacter < characters - 1) {
-                currentCharacter++;
-        } else {
-                currentCharacter = 0;
+        nextCharacter();
+        while (isInArray(playersOut, currentCharacter)) {
+                nextCharacter();
         }
         io.sockets.emit('currentCharacterUpdate', currentCharacter);
         movedPeice = false;
@@ -338,6 +340,19 @@ function updateDecks()
                 }
         }
 }
+function isInArray(array, elt) 
+{
+        return array.indexOf(elt) > -1;
+}
+function nextCharacter()
+{
+        if (currentCharacter < characters - 1) {
+                currentCharacter++;
+        } else {
+                currentCharacter = 0;
+        }
+}
+
 // Pathfinding functions
 function path(start, end) 
 {

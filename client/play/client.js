@@ -153,6 +153,14 @@ function preload()
         {
                 clientHand.push(card);
         });
+        socket.on('accusationCorrect', function()
+        {
+                window.alert(hold[currentCharacter].name + ' wins the game!');
+        });
+        socket.on('accusationIncorrect', function()
+        {
+                window.alert(hold[currentCharacter].name + ' is out of the game after a false accusation...');
+        });
 
 }
 
