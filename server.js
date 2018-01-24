@@ -96,6 +96,19 @@ io.sockets.on('connection', function(socket)
         {
                 nextTurn();
         });
+        // Accusation
+        socket.on('makeAccusation', function(suspect, weapon, room)
+        {
+                if (suspect == envelope[0] && weapon == envelope[1] && room == envelope[2]) {
+                        // Accusation correct!
+                        io.sockets.emit('accusationCorrect');
+                        console.log(socket + ' (' + hold[currentCharacter].name + ') has won!');
+                } else {
+                        // Accusation incorrect...
+                        io.sockets.emit('accusationIncorrect');
+                        console.log(socket + ' (' + hold[currentCharacter].name + ') has won!');
+                }
+        });
 });
 
 // Global board variables

@@ -442,7 +442,7 @@ function mousePressed()
                 }
         }
         // Next turn
-        if (mouseX > 390 && mouseX < 460 && mouseY > 480 && clientCharacter == clientHand && gameState == 'inProgress') {
+        if (mouseX > 390 && mouseX < 460 && mouseY > 480 && clientCharacter == currentCharacter && gameState == 'inProgress') {
                 socket.emit('nextTurn');
         }
         // Major Misc
@@ -475,6 +475,7 @@ function mousePressed()
                                         window.alert(scenario);
                                         socket.emit('makeAccusation', scenario[0], scenario[1], scenario[2]);
                                 }
+                                selectingScenario = false;
                         }
                 }
         }
