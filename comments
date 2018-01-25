@@ -25,6 +25,9 @@ Code comments:- Making accusations
         * skip player next turn (is in array function) (NEXT CHRACTER FUCNTION)
         
 Code comments:- Making suggestions
+        * choose cards to suggest
+        * move selecting scenario = false to when repsonse recieved
+        * send deets over to server
 
 
 Code comments:- Moving into rooms

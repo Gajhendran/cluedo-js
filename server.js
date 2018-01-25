@@ -263,20 +263,14 @@ function startGame(players)
         console.log("Room: " + envelope[2]);
         // Collate cards and shuffle
         console.log("Start handing out cards...");
-        console.log(cardsCollated);
         cardsCollated = suspectCards.concat(weaponCards);
         cardsCollated = cardsCollated.concat(roomCards);
         cardsCollated = shuffle(cardsCollated);
-        console.log(cardsCollated);
         hands = new Array(characters);
         for (var i = 0; i < characters; i++) {
                 hands[i] = [];
         }
-        console.log(hands)
         handOut(cardsCollated);
-        for (var i = 0; i < characters; i++) {
-                console.log(hands[i]);
-        }
         // Send them to the clients
         updateDecks();
 }

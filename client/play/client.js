@@ -156,10 +156,13 @@ function preload()
         socket.on('accusationCorrect', function()
         {
                 window.alert(hold[currentCharacter].name + ' wins the game!');
+                selectingScenario = false;
+
         });
         socket.on('accusationIncorrect', function()
         {
                 window.alert(hold[currentCharacter].name + ' is out of the game after a false accusation...');
+                selectingScenario = false;
         });
 
 }
@@ -324,7 +327,7 @@ function draw()
                                 }
                         } else {
                                 // Error, all cards already chosen
-                                majorMiscGraphics.text('All scenario cards chosen...', 30, 70);
+                                majorMiscGraphics.text('All scenario cards chosen, please wait...', 30, 70);
                         }
                         
                 } else {
@@ -460,6 +463,11 @@ function mousePressed()
                         scenarioContext = "accusation";
                         selectingScenario = true;
                 }
+                if (mouseX > 480 + 30 && mouseX < 480 + 30 + 300 && mouseY > 110 + clientHand.length * 20 && mouseY < 110 + clientHand.length * 20 + 20 && currentCharacter == clientCharacter) {
+                        // Make a mere suggestion
+                        scenarioContext = "suggestion";
+                        selectingScenario = true;
+                }
         } else {
                 // Chose cards
                 if (scenario[0].length < 1) {
@@ -480,10 +488,11 @@ function mousePressed()
                                 var index = Math.floor((mouseY - 55)/20);
                                 scenario[2] = roomCards[index];
                                 if (scenarioContext == "accusation") {
-                                        window.alert(scenario);
                                         socket.emit('makeAccusation', scenario[0], scenario[1], scenario[2]);
+                                } else if (scenarioContext == "suggestion") {
+                                        socket.emit("makeSuggestion", scenario[0], scenario[1], scenario[3]);
+                                        selectingScenario = false;
                                 }
-                                selectingScenario = false;
                         }
                 }
         }
