@@ -28,6 +28,8 @@ Code comments:- Making suggestions
         * choose cards to suggest
         * move selecting scenario = false to when repsonse recieved
         * send deets over to server
+        ** empty scenario when told in next turn
+        GIT
 
 
 Code comments:- Moving into rooms

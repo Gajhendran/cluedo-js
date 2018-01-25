@@ -111,6 +111,24 @@ io.sockets.on('connection', function(socket)
                         console.log(socket.id + ' (' + hold[currentCharacter].name + ') made a false accusation!');
                 }
         });
+        // Suggestion
+        socket.on('makeSuggestion', function(suspect, weapon, room) 
+        {
+                var cardsFound = false;
+                for (var i = 0; i < hands.length; i++) {
+                        if (!cardsFound && i != currentCharacter) {
+                                console.log(hands[i] + " look for " + suspect + weapon + room);
+                                if (isInArray(hands[i], suspect) || isInArray(hands[i], weapon) || isInArray(hands[i], room)) {
+                                        // This player has a card to show
+                                        cardsFound = true;
+                                        console.log(hold[i].name + " has a card to show");
+                                }
+                        }
+                }
+                if (!cardsFound) {
+                        console.log("cardsNotFound");
+                }
+        });
 });
 
 // Global board variables

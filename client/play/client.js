@@ -135,6 +135,7 @@ function preload()
         {
                 currentCharacter = update;
                 movedPeice = false;
+                scenario = ["", "", ""];
         });
         socket.on('connectionsUpdate', function(update)
         {
