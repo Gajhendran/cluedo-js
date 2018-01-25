@@ -33,6 +33,10 @@ Code comments:- Making suggestions
         * tell client no hands with cards found emit message
         * window alert when recieved
         * send to client when they have a card
+        GIT
+        * copy is in array to client
+        * display text
+        * select card to show
 
 
 Code comments:- Moving into rooms

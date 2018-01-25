@@ -32,6 +32,8 @@ var scenario = ["", "", ""];
 var suspectCards = ['Colonel Mustard', 'Professor Plum', 'Mr Green', 'Mrs Peacock', 'Miss Scarlet', 'Dr Orchid'];
 var weaponCards = ['Knife', 'Candlestick', 'Revolver', 'Rope', 'Lead pipe', 'Spanner'];
 var roomCards = ['Hall', 'Lounge', 'Dining room', 'Kitchen', 'Ballroom', 'Conservatory', 'Billiard room', 'Library', 'Study'];
+var pickFrom = ["", "", ""];
+var pickingCards = false;
 
 function Cell(i, j) 
 {
@@ -172,6 +174,10 @@ function preload()
         socket.on('pickCard', function (name, suspect, weapon, room)
         {
                 window.alert(name + " suggested " + suspect + " with " + weapon + " in " + room + ", please pick card to show player");
+                pickFrom[0] = suspect;
+                pickFrom[1] = weapon;
+                pickFrom[2] = room;
+                pickingCards = true;
         });
 
 }
@@ -338,6 +344,11 @@ function draw()
                                 // Error, all cards already chosen
                                 majorMiscGraphics.text('All scenario cards chosen, please wait...', 30, 70);
                         }
+                } else if (pickingCards) {
+                        majorMiscGraphics.text('Pick a card to privately show to ' + hold[currentCharacter].name, 30, 30);
+                        for (var i = 0; i < pickFrom.length; i++) {
+                                majorMiscGraphics.text(pickFrom[i], 50, 50 + 20 * i);
+                        }
                         
                 } else {
                         majorMiscGraphics.text('Game started with ' + characters + ' number of players', 30, 30);
@@ -466,7 +477,7 @@ function mousePressed()
                 socket.emit('nextTurn');
         }
         // Major Misc
-        if (!selectingScenario) {
+        if (!selectingScenario && !pickingCards) {
                 if (mouseX > 480 + 30 && mouseX < 480 + 30 + 300 && mouseY > 110 + clientHand.length * 20 + 20 && mouseY < 110 + clientHand.length * 20 + 40 && currentCharacter == clientCharacter) {
                         // Make an accusation
                         scenarioContext = "accusation";
@@ -476,6 +487,16 @@ function mousePressed()
                         // Make a mere suggestion
                         scenarioContext = "suggestion";
                         selectingScenario = true;
+                }
+        } else if (pickingCards) {
+                if (mouseX > 540 && mouseX < 700 && mouseY > 30 && mouseY < pickFrom.length * 20 + 35) {
+                        var index = Math.floor((mouseY - 35)/20);
+                        window.alert(index);
+                        if (isInArray(clientHand, pickFrom[index])) {
+                                socket.emit('pickedCard', pickFrom[index]);
+                                pickingCards = false;
+                                pickFrom = ["", "", ""];
+                        }
                 }
         } else {
                 // Chose cards
@@ -505,6 +526,10 @@ function mousePressed()
                         }
                 }
         }
+}
+function isInArray(array, elt) 
+{
+        return array.indexOf(elt) > -1;
 }
 
 // Pathfinding algorithms
