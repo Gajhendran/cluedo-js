@@ -165,6 +165,14 @@ function preload()
                 window.alert(hold[currentCharacter].name + ' is out of the game after a false accusation...');
                 selectingScenario = false;
         });
+        socket.on('noCardsFound', function(name, suspect, weapon, room)
+        {
+                window.alert(name + " suggested " + suspect + " with " + weapon + " in " + room + " and found no one with those cards");
+        });
+        socket.on('pickCard', function (name, suspect, weapon, room)
+        {
+                window.alert(name + " suggested " + suspect + " with " + weapon + " in " + room + ", please pick card to show player");
+        });
 
 }
 
@@ -491,7 +499,7 @@ function mousePressed()
                                 if (scenarioContext == "accusation") {
                                         socket.emit('makeAccusation', scenario[0], scenario[1], scenario[2]);
                                 } else if (scenarioContext == "suggestion") {
-                                        socket.emit("makeSuggestion", scenario[0], scenario[1], scenario[3]);
+                                        socket.emit("makeSuggestion", scenario[0], scenario[1], scenario[2]);
                                         selectingScenario = false;
                                 }
                         }

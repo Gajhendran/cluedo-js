@@ -29,7 +29,10 @@ Code comments:- Making suggestions
         * move selecting scenario = false to when repsonse recieved
         * send deets over to server
         ** empty scenario when told in next turn
-        GIT
+        GIT - error scenera 3 common tom
+        * tell client no hands with cards found emit message
+        * window alert when recieved
+        * send to client when they have a card
 
 
 Code comments:- Moving into rooms

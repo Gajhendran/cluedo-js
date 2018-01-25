@@ -114,19 +114,21 @@ io.sockets.on('connection', function(socket)
         // Suggestion
         socket.on('makeSuggestion', function(suspect, weapon, room) 
         {
+                console.log(room)
                 var cardsFound = false;
                 for (var i = 0; i < hands.length; i++) {
                         if (!cardsFound && i != currentCharacter) {
-                                console.log(hands[i] + " look for " + suspect + weapon + room);
                                 if (isInArray(hands[i], suspect) || isInArray(hands[i], weapon) || isInArray(hands[i], room)) {
                                         // This player has a card to show
                                         cardsFound = true;
                                         console.log(hold[i].name + " has a card to show");
+                                        io.to(socketIds[i]).emit('pickCard', hold[currentCharacter].name, suspect, weapon, room);
                                 }
                         }
                 }
                 if (!cardsFound) {
-                        console.log("cardsNotFound");
+                        console.log("No cards found in other player hands that match suggestion");
+                        io.sockets.emit('noCardsFound', hold[currentCharacter].name, suspect, weapon, room);
                 }
         });
 });
