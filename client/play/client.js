@@ -379,10 +379,10 @@ function drawBoardDetails()
         // Study
         gridGraphics.fill(0, 0, 0);
         gridGraphics.strokeWeight(1);
-        gridGraphics.line(144 - 1, 0 - 1, 144 - 1, 72 - 1);
-        gridGraphics.line(0 - 1, 72 - 1, 144 - 1, 72 - 1);
+        gridGraphics.line(144 -1, 0 -1, 144 -1, 72 -1);
+        gridGraphics.line(0 -1, 72 -1, 144 -1, 72 -1);
         gridGraphics.fill(255);
-        gridGraphics.rect(0 - 1, 0 - 1, 144 - 1, 72 - 1);
+        gridGraphics.rect(0 -1, 0 -1, 144 -1, 72 -1);
         // Hall
         gridGraphics.fill(0, 0, 0);
         gridGraphics.line(192 , 0 , 192 , 144 - 1);
@@ -399,11 +399,6 @@ function drawBoardDetails()
         // Envolope
         gridGraphics.fill(85,107,47);
         gridGraphics.rect(192 -1, 168-1, 96, 120);
-        gridGraphics.textSize(28);
-        gridGraphics.textAlign(CENTER);
-        gridGraphics.strokeWeight(0);
-        gridGraphics.fill(255);
-        //gridGraphics.text('Cluedo', 192+4, 168, 96, 48);
         gridGraphics.strokeWeight(1);
         // Library
         gridGraphics.fill(0,0,0);
@@ -457,6 +452,37 @@ function drawBoardDetails()
         gridGraphics.line(384, 360, 384, 480);
         gridGraphics.fill(255);
         gridGraphics.rect(384, 360, 96 -1, 120 -1);
+        // Text
+        gridGraphics.noFill();
+        gridGraphics.noStroke();
+        gridGraphics.textSize(12);
+        gridGraphics.stroke(0);
+        gridGraphics.text("Study", 10, 20);
+        gridGraphics.text("Hall", 200, 20);
+        gridGraphics.text("Lounge", 420, 20);
+        gridGraphics.text("Library", 10, 140);
+        gridGraphics.text("Dining room", 400, 210);
+        gridGraphics.text("Billiard room", 10, 280);
+        gridGraphics.text("Conservatory", 10, 425);
+        gridGraphics.text("Ballroom", 200, 360);
+        gridGraphics.text("Kitchen", 400, 380);
+        // Doors
+        gridGraphics.stroke(255, 255, 255);
+        gridGraphics.strokeWeight(4);
+        gridGraphics.line(120 +2, 72 -1, 144 -2, 72 -1);
+        gridGraphics.line(216, 144 -1, 240, 144 -1);
+        gridGraphics.line(288 -1, 96, 288 -1, 120);
+        gridGraphics.line(336, 120, 360, 120);
+        gridGraphics.line(384, 192, 408, 192);
+        gridGraphics.line(336, 216, 336, 240);
+        gridGraphics.line(144, 168, 144, 192);
+        gridGraphics.line(24, 240, 48, 240);
+        gridGraphics.line(48, 264, 72, 264);
+        gridGraphics.line(144, 312, 144, 336);
+        gridGraphics.line(120, 432, 144, 432);
+        gridGraphics.line(264, 336, 288, 336);
+        gridGraphics.line(336, 360, 336, 384);
+        gridGraphics.line(408, 360, 432, 360);
 }
 function mousePressed() 
 {
