@@ -179,6 +179,10 @@ function preload()
                 pickFrom[2] = room;
                 pickingCards = true;
         });
+        socket.on('showCard', function(card, index)
+        {
+                window.alert(hold[index].name + " shows you card " + card);
+        })
 
 }
 
@@ -491,7 +495,6 @@ function mousePressed()
         } else if (pickingCards) {
                 if (mouseX > 540 && mouseX < 700 && mouseY > 30 && mouseY < pickFrom.length * 20 + 35) {
                         var index = Math.floor((mouseY - 35)/20);
-                        window.alert(index);
                         if (isInArray(clientHand, pickFrom[index])) {
                                 socket.emit('pickedCard', pickFrom[index]);
                                 pickingCards = false;

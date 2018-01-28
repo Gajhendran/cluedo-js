@@ -131,6 +131,11 @@ io.sockets.on('connection', function(socket)
                         io.sockets.emit('noCardsFound', hold[currentCharacter].name, suspect, weapon, room);
                 }
         });
+        socket.on('pickedCard', function(card)
+        {
+                console.log("Showing " + card + " to " + hold[currentCharacter].name);
+                io.to(socketIds[currentCharacter]).emit('showCard', card, socketIds.indexOf(socket.id));
+        });
 });
 
 // Global board variables
