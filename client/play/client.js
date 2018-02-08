@@ -493,6 +493,8 @@ function mousePressed()
                 // If path short enough with respect to roll value and destination not an obstacle, move item
                 if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && currentCharacter == clientCharacter && !movedPeice) {
                         socket.emit('moveItem',currentCharacter, x, y);
+                } else if (( x == 5 && y == 2) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[5][3]) <= rollValue - 1) { // Study
+                        window.alert("In study");
                 }
         }
         // Ready game
