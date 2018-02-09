@@ -50,4 +50,8 @@ Code comments:- Moving into rooms
         * room objects now know where they are in the array
         * move from room with pathfinding
         GIT
+        * server socket
+        * update all clients move in object function
+        * bang on enter room
+        GIT
         

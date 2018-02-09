@@ -89,6 +89,7 @@ function Item(type, name, red, green, blue, i, j)
         this.b = blue;
         this.i = i;
         this.j = j;
+        this.room = -1;
         // Show item
         this.show = function() 
         {
@@ -110,13 +111,15 @@ function Room(name, index, doors, x1, y1, x2, y2)
         {
                 if (this.characters.indexOf(character) == -1) {
                         this.characters.push(character)
-                        console.log("Entered study")
+                        hold[character].room = index;
+                        window.alert("BANG");
                 }
         };
         this.leave = function(character)
         {
                 removeFromArray(this.characters, character);
-        }
+                hold[character].room = -1;
+        };
         this.show = function()
         {
                 if (this.name == "Study") {
@@ -143,7 +146,7 @@ function Room(name, index, doors, x1, y1, x2, y2)
                         return false;
                 }
         };
-};
+}
 // Load game assets
 function preload() 
 {
@@ -231,8 +234,11 @@ function preload()
         socket.on('showCard', function(card, index)
         {
                 window.alert(hold[index].name + " shows you card " + card);
-        })
-
+        });
+        socket.on('enterRoom', function(character, roomName, roomCode)
+        {
+                rooms[roomCode].enter(character);
+        });
 }
 
 // Setup game    
@@ -549,8 +555,7 @@ function mousePressed()
                 if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && currentCharacter == clientCharacter && !movedPeice) {
                         socket.emit('moveItem',currentCharacter, x, y);
                 } else if (( x == 5 && y == 2) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[5][3]) <= rollValue - 1) { // Study
-                        //socket.emit('enterRoom', currentCharacter, 'Study', 0);
-                        console.log(rooms[0].pathFrom(6, 0, 6));
+                        socket.emit('enterRoom', currentCharacter, 'Study', 0);
                 }
         }
         // Ready game

@@ -136,10 +136,32 @@ io.sockets.on('connection', function(socket)
                 console.log("Showing " + card + " to " + hold[currentCharacter].name);
                 io.to(socketIds[currentCharacter]).emit('showCard', card, socketIds.indexOf(socket.id));
         });
-        //socket.on('enterRoom', function(character, room)
-        //{
-                //if (room == "Study")
-        //});
+        socket.on('enterRoom', function(character, roomName, roomCode)
+        {
+                var i = hold[character].i;
+                var j = hold[character].j;
+                if (rooms[roomCode].doors == 1) {
+                        var x = rooms[roomCode].doorOne[0];
+                        var y = rooms[roomCode].doorOne[1];
+                        if (path(board[i][j], board[x][y]) <= rollValue) {
+                                rooms[roomCode].enter(character);
+                        } else {
+                                console.log(hold[character].name + ' rejected from entering room ' + roomName);
+                        }
+                } else if (rooms[roomCode].doors == 2) {
+                        var x1 = rooms[roomCode].doorOne[0];
+                        var y1 = rooms[roomCode].doorOne[1];
+                        var x2 = rooms[roomCode].doorTwo[0];
+                        var y2 = rooms[roomCode].doorTwo[1];
+                        if (path(board[i][j], board[x1][y1]) <= rollValue || path(board[i][j], board[x2][y2]) <= rollValue) {
+                                rooms[roomCode].enter(character);
+                        } else {
+                                console.log(hold[character].name + ' rejected from entering room ' + roomName);
+                        }
+                } else {
+                        console.log('Error reading number of doors in room ' + roomName);
+                }
+        });
 });
 
 // Global board variables
@@ -157,6 +179,8 @@ var roomCards = ['Hall', 'Lounge', 'Dining room', 'Kitchen', 'Ballroom', 'Conser
 var cardsCollated = [];
 var hands = undefined;
 var playersOut = [""];
+const ROOM_CONST = 1;
+var rooms = new Array(ROOM_CONST);
 // Objects
 function Cell(i, j) 
 {
@@ -211,13 +235,16 @@ function Room(name, index, doors, x1, y1, x2, y2)
         this.enter = function(character) 
         {
                 if (this.characters.indexOf(character) == -1) {
-                        this.characters.push(character)
-                        console.log("Entered study")
+                        this.characters.push(character);
+                        hold[character].room = index;
+                        io.sockets.emit('enterRoom', character, this.name, this.index);
+                        console.log(hold[character].name + ' has entered room ' + this.name);
                 }
         };
         this.leave = function(character)
         {
                 removeFromArray(this.characters, character);
+                hold[character].room = -1;
         }
         this.pathFrom = function(i, j, roll)
         {
@@ -337,6 +364,7 @@ function startGame(players)
         handOut(cardsCollated);
         // Send them to the clients
         updateDecks();
+        rooms[0] = new Room("Study", 0, 1, 5, 3);
 }
 function nextTurn()
 {
