@@ -110,27 +110,28 @@ function Room(name, index, doors, x1, y1, x2, y2)
         this.enter = function(character) 
         {
                 if (this.characters.indexOf(character) == -1) {
-                        this.characters.push(character)
+                        this.characters.push(character);
                         hold[character].room = index;
-                        window.alert("BANG");
+                        
+                        board[hold[character].i][hold[character].j].hold = -1;
+                        board[hold[character].i][hold[character].j].obstacle = false;
+                        
+                        hold[character].i = hold[character].j = -1;
+                        movedPeice = true;
+                        console.log(hold[character].name + ' has entered room ' + this.name);
                 }
         };
-        this.leave = function(character)
+        this.leave = function(character, i, j)
         {
                 removeFromArray(this.characters, character);
                 hold[character].room = -1;
-        };
-        this.show = function()
-        {
-                if (this.name == "Study") {
-                        if (this.characters.indexOf(currentCharacter) > -1) {
-                                console.log("Draw in study");
-                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
-                                gridGraphics.stroke(0);
-                                gridGraphics.rect(4 * (GRID_WIDTH / COLS), 1 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
-                        };
-                };
-        };
+                hold[character].i = i;
+                hold[character].j = j;
+                board[i][j].hold = character;
+                board[i][j].obstacle = true;
+                movedPeice = true;
+                console.log(hold[character].name + ' has left room ' + this.name);
+        }
         this.pathFrom = function(i, j, roll)
         {
                 if (doors == 1) {
@@ -145,6 +146,17 @@ function Room(name, index, doors, x1, y1, x2, y2)
                 } else {
                         return false;
                 }
+        };
+        this.show = function()
+        {
+                if (this.name == "Study") {
+                        if (this.characters.indexOf(currentCharacter) > -1) {
+                                console.log("Draw in study");
+                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
+                                gridGraphics.stroke(0);
+                                gridGraphics.rect(4 * (GRID_WIDTH / COLS), 1 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        };
+                };
         };
 }
 // Load game assets
@@ -238,6 +250,10 @@ function preload()
         socket.on('enterRoom', function(character, roomName, roomCode)
         {
                 rooms[roomCode].enter(character);
+        });
+        socket.on('leaveRoom', function(roomCode, character, i, j)
+        {
+                rooms[roomCode].leave(character, i, j);
         });
 }
 
@@ -343,11 +359,20 @@ function draw()
         if (gameState == "inProgress") {
                 // Highlight where the player can go
                 if (mouseX < 480 && mouseY < 480 && currentCharacter == clientCharacter && !movedPeice) {
-                        var x = Math.floor(mouseX / 480 * COLS);
-                        var y = Math.floor(mouseY / 480 * ROWS);
-                        if (path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
-                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b, 72);
-                                gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        if (hold[currentCharacter].i > -1) {
+                                var x = Math.floor(mouseX / 480 * COLS);
+                                var y = Math.floor(mouseY / 480 * ROWS);
+                                if (path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false) {
+                                        gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b, 72);
+                                        gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                                }
+                        } else if (hold[currentCharacter].i == -1) {
+                                var x = Math.floor(mouseX / 480 * COLS);
+                                var y = Math.floor(mouseY / 480 * ROWS);
+                                if (rooms[hold[currentCharacter].room].pathFrom(x, y, rollValue -1) && !board[x][y].obstacle) {
+                                        gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b, 72);
+                                        gridGraphics.rect(x * (GRID_WIDTH / COLS), y * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                                }
                         }
                 }
                 // Character ticker
@@ -551,11 +576,19 @@ function mousePressed()
                 // Calculate the x-pos and y-pos of the mouse with respect to the grid
                 var x = Math.floor(mouseX / 480 * COLS);
                 var y = Math.floor(mouseY / 480 * ROWS);
-                // If path short enough with respect to roll value and destination not an obstacle, move item
-                if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && currentCharacter == clientCharacter && !movedPeice) {
-                        socket.emit('moveItem',currentCharacter, x, y);
-                } else if (( x == 5 && y == 2) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[5][3]) <= rollValue - 1) { // Study
-                        socket.emit('enterRoom', currentCharacter, 'Study', 0);
+                // If path short enough with respect to roll value and destination not an obstacle, move item && if not in room
+                if (hold[currentCharacter].i > -1) {
+                        if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && currentCharacter == clientCharacter && !movedPeice) {
+                                socket.emit('moveItem',currentCharacter, x, y);
+                        } else if (( x == 5 && y == 2) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[5][3]) <= rollValue - 1) { // Study
+                                socket.emit('enterRoom', currentCharacter, 'Study', 0);
+                        }
+                } else if (hold[currentCharacter].i == -1) {
+                        var roomIndex = hold[currentCharacter].room;
+                        if(rooms[roomIndex].pathFrom(x, y, rollValue -1)) {
+                                socket.emit('leaveRoom', currentCharacter, roomIndex, x, y);
+                        }
+                        
                 }
         }
         // Ready game

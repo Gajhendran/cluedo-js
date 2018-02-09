@@ -140,26 +140,54 @@ io.sockets.on('connection', function(socket)
         {
                 var i = hold[character].i;
                 var j = hold[character].j;
-                if (rooms[roomCode].doors == 1) {
+                if (rooms[roomCode].doors == 1 && !movedPeice) {
                         var x = rooms[roomCode].doorOne[0];
                         var y = rooms[roomCode].doorOne[1];
-                        if (path(board[i][j], board[x][y]) <= rollValue) {
+                        if (path(board[i][j], board[x][y]) <= rollValue -1) {
                                 rooms[roomCode].enter(character);
                         } else {
                                 console.log(hold[character].name + ' rejected from entering room ' + roomName);
                         }
-                } else if (rooms[roomCode].doors == 2) {
+                } else if (rooms[roomCode].doors == 2 && !movedPeice) {
                         var x1 = rooms[roomCode].doorOne[0];
                         var y1 = rooms[roomCode].doorOne[1];
                         var x2 = rooms[roomCode].doorTwo[0];
                         var y2 = rooms[roomCode].doorTwo[1];
-                        if (path(board[i][j], board[x1][y1]) <= rollValue || path(board[i][j], board[x2][y2]) <= rollValue) {
+                        if (path(board[i][j], board[x1][y1]) <= rollValue -1 || path(board[i][j], board[x2][y2]) <= rollValue -1) {
                                 rooms[roomCode].enter(character);
                         } else {
                                 console.log(hold[character].name + ' rejected from entering room ' + roomName);
                         }
+                } else if (movedPeice) {
+                        console.log('Error: already moved peice')
                 } else {
                         console.log('Error reading number of doors in room ' + roomName);
+                }
+        });
+        socket.on('leaveRoom', function(character, roomCode, i, j) 
+        {
+                if (rooms[roomCode].doors == 1 && !movedPeice) {
+                        var x = rooms[roomCode].doorOne[0];
+                        var y = rooms[roomCode].doorOne[1];
+                        if (path(board[x][y], board[i][j]) <= rollValue -1) {
+                                rooms[roomCode].leave(character, i, j);
+                        } else {
+                                console.log(hold[character].name + ' rejected from leaving room ' + rooms[roomCode].name);
+                        }
+                } else if (rooms[roomCode].doors == 2 && !movedPeice) {
+                        var x1 = rooms[roomCode].doorOne[0];
+                        var y1 = rooms[roomCode].doorOne[1];
+                        var x2 = rooms[roomCode].doorTwo[0];
+                        var y2 = rooms[roomCode].doorTwo[1];
+                        if (path(board[x1][y1], board[i][j]) <= rollValue -1 || path(board[x2][y2], board[i][j] <= rollValue -1)) {
+                                rooms[roomCode].leave(character, i, j);
+                        } else {
+                                console.log(hold[character].name + ' rejected from leaving room ' + rooms[roomCode].name);
+                        }
+                } else if (movedPeice) {
+                        console.log('Error: already moved peice');
+                } else {
+                        console.log('Error reading number of doors in room ' + rooms[roomCode].name);
                 }
         });
 });
@@ -223,6 +251,7 @@ function Item(type, name, red, green, blue, i, j)
         this.b = blue;
         this.i = i;
         this.j = j;
+        this.room = -1;
 }
 function Room(name, index, doors, x1, y1, x2, y2)
 {
@@ -236,15 +265,26 @@ function Room(name, index, doors, x1, y1, x2, y2)
         {
                 if (this.characters.indexOf(character) == -1) {
                         this.characters.push(character);
+                        board[hold[character].i][hold[character].j].hold = -1;
+                        board[hold[character].i][hold[character].j].obstacle = false;
                         hold[character].room = index;
+                        hold[character].i = hold[character].j = -1;
+                        movedPeice = true;
                         io.sockets.emit('enterRoom', character, this.name, this.index);
                         console.log(hold[character].name + ' has entered room ' + this.name);
                 }
         };
-        this.leave = function(character)
+        this.leave = function(character, i, j)
         {
                 removeFromArray(this.characters, character);
                 hold[character].room = -1;
+                hold[character].i = i;
+                hold[character].j = j;
+                board[i][j].hold = character;
+                board[i][j].obstacle = true;
+                console.log(hold[character].name + ' has left room ' + this.name);
+                movedPeice = true;
+                io.sockets.emit('leaveRoom', this.index, character, i, j)
         }
         this.pathFrom = function(i, j, roll)
         {
