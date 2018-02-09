@@ -45,4 +45,9 @@ Code comments:- Moving into rooms
         * draw doors
         * alert when in study
         GIT
+        * room objects
+        * draw character in study
+        * room objects now know where they are in the array
+        * move from room with pathfinding
+        GIT
         

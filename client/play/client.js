@@ -34,6 +34,8 @@ var weaponCards = ['Knife', 'Candlestick', 'Revolver', 'Rope', 'Lead pipe', 'Spa
 var roomCards = ['Hall', 'Lounge', 'Dining room', 'Kitchen', 'Ballroom', 'Conservatory', 'Billiard room', 'Library', 'Study'];
 var pickFrom = ["", "", ""];
 var pickingCards = false;
+const ROOM_CONST = 1;
+var rooms = new Array(ROOM_CONST);
 
 function Cell(i, j) 
 {
@@ -91,10 +93,57 @@ function Item(type, name, red, green, blue, i, j)
         this.show = function() 
         {
                 gridGraphics.fill(this.r, this.g, this.b);
-                gridGraphics.stroke(0);
+                gridGraphics.noStroke;
+                gridGraphics.strokeWeight(0);
                 gridGraphics.rect(this.i * (GRID_WIDTH / COLS), this.j * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
         }
 }
+function Room(name, index, doors, x1, y1, x2, y2)
+{
+        this.name = name;
+        this.index = index;
+        this.characters = [];
+        this.doors = doors;
+        this.doorOne = [x1, y1];
+        this.doorTwo = [x2, y2];
+        this.enter = function(character) 
+        {
+                if (this.characters.indexOf(character) == -1) {
+                        this.characters.push(character)
+                        console.log("Entered study")
+                }
+        };
+        this.leave = function(character)
+        {
+                removeFromArray(this.characters, character);
+        }
+        this.show = function()
+        {
+                if (this.name == "Study") {
+                        if (this.characters.indexOf(currentCharacter) > -1) {
+                                console.log("Draw in study");
+                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
+                                gridGraphics.stroke(0);
+                                gridGraphics.rect(4 * (GRID_WIDTH / COLS), 1 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        };
+                };
+        };
+        this.pathFrom = function(i, j, roll)
+        {
+                if (doors == 1) {
+                        console.log("one door");
+                        if (path( board[this.doorOne[0]][this.doorOne[1]] , board[i][j]) <= roll -1) {
+                                return true;
+                        } else {
+                                return false;
+                        }
+                } else if ((path(board[this.doorOne[0]][this.doorOne[1]], board[i][j]) <= roll -1) || (path(board[this.doorTwo[0]][this.doorTwo[1]], board[i][j]) <= roll -1)) {
+                        return true;
+                } else {
+                        return false;
+                }
+        };
+};
 // Load game assets
 function preload() 
 {
@@ -216,7 +265,7 @@ function startGame(players)
                 board[6][19].hold = 2;
                 board[6][19].obstacle = true;
         }
-        console.log(hold);
+        rooms[0] = new Room("Study", 0, 1, 5, 3);
 }
 function generateBoard() 
 {
@@ -370,6 +419,12 @@ function draw()
                         majorMiscGraphics.text('Click here to MAKE A ACCUSATION (may end game)', 30, 110 + clientHand.length * 20 + 40);
                 }
         }
+        // Draw rooms
+        if (gameState == "inProgress") {
+                for (var i = 0; i < ROOM_CONST; i++) {
+                        rooms[i].show();
+                }
+        };
         image(gridGraphics, 0, 0);
         image(charactersGraphics, 0, 480);
         image(majorMiscGraphics, 480, 0);
@@ -494,7 +549,8 @@ function mousePressed()
                 if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && currentCharacter == clientCharacter && !movedPeice) {
                         socket.emit('moveItem',currentCharacter, x, y);
                 } else if (( x == 5 && y == 2) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[5][3]) <= rollValue - 1) { // Study
-                        window.alert("In study");
+                        //socket.emit('enterRoom', currentCharacter, 'Study', 0);
+                        console.log(rooms[0].pathFrom(6, 0, 6));
                 }
         }
         // Ready game

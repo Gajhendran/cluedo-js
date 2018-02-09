@@ -136,6 +136,10 @@ io.sockets.on('connection', function(socket)
                 console.log("Showing " + card + " to " + hold[currentCharacter].name);
                 io.to(socketIds[currentCharacter]).emit('showCard', card, socketIds.indexOf(socket.id));
         });
+        //socket.on('enterRoom', function(character, room)
+        //{
+                //if (room == "Study")
+        //});
 });
 
 // Global board variables
@@ -196,6 +200,41 @@ function Item(type, name, red, green, blue, i, j)
         this.i = i;
         this.j = j;
 }
+function Room(name, index, doors, x1, y1, x2, y2)
+{
+        this.name = name;
+        this.index = index;
+        this.characters = [];
+        this.doors = doors;
+        this.doorOne = [x1, y1];
+        this.doorTwo = [x2, y2];
+        this.enter = function(character) 
+        {
+                if (this.characters.indexOf(character) == -1) {
+                        this.characters.push(character)
+                        console.log("Entered study")
+                }
+        };
+        this.leave = function(character)
+        {
+                removeFromArray(this.characters, character);
+        }
+        this.pathFrom = function(i, j, roll)
+        {
+                if (doors == 1) {
+                        console.log("one door");
+                        if (path( board[this.doorOne[0]][this.doorOne[1]] , board[i][j]) <= roll -1) {
+                                return true;
+                        } else {
+                                return false;
+                        }
+                } else if ((path(board[this.doorOne[0]][this.doorOne[1]], board[i][j]) <= roll -1) || (path(board[this.doorTwo[0]][this.doorTwo[1]], board[i][j]) <= roll -1)) {
+                        return true;
+                } else {
+                        return false;
+                }
+        };
+};
 // Return fresh board
 function generateBoard() 
 {
