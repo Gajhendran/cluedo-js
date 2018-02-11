@@ -355,6 +355,9 @@ function draw()
                 }
         }
         drawBoardDetails();
+        // Reset drawing
+        gridGraphics.stroke(0)
+        gridGraphics.strokeWeight(1)
         // Draw game details
         if (gameState == "inProgress") {
                 // Highlight where the player can go
