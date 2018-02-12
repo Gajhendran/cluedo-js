@@ -34,7 +34,7 @@ var weaponCards = ['Knife', 'Candlestick', 'Revolver', 'Rope', 'Lead pipe', 'Spa
 var roomCards = ['Hall', 'Lounge', 'Dining room', 'Kitchen', 'Ballroom', 'Conservatory', 'Billiard room', 'Library', 'Study'];
 var pickFrom = ["", "", ""];
 var pickingCards = false;
-const ROOM_CONST = 1;
+const ROOM_CONST = 9;
 var rooms = new Array(ROOM_CONST);
 
 function Cell(i, j) 
@@ -151,12 +151,59 @@ function Room(name, index, doors, x1, y1, x2, y2)
         {
                 if (this.name == "Study") {
                         if (this.characters.indexOf(currentCharacter) > -1) {
-                                console.log("Draw in study");
                                 gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
                                 gridGraphics.stroke(0);
                                 gridGraphics.rect(4 * (GRID_WIDTH / COLS), 1 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
                         };
-                };
+                } else if (this.name == "Hall") {
+                        if (this.characters.indexOf(currentCharacter) > -1) {
+                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
+                                gridGraphics.stroke(0);
+                                gridGraphics.rect(10 * (GRID_WIDTH / COLS), 4 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        };
+                } else if (this.name == "Lounge") {
+                        if (this.characters.indexOf(currentCharacter) > -1) {
+                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
+                                gridGraphics.stroke(0);
+                                gridGraphics.rect(18 * (GRID_WIDTH / COLS), 3 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        };
+                } else if (this.name == "Library") {
+                        if (this.characters.indexOf(currentCharacter) > -1) {
+                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
+                                gridGraphics.stroke(0);
+                                gridGraphics.rect(3 * (GRID_WIDTH / COLS), 7 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        };
+                } else if (this.name == "Dining room") {
+                        if (this.characters.indexOf(currentCharacter) > -1) {
+                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
+                                gridGraphics.stroke(0);
+                                gridGraphics.rect(18 * (GRID_WIDTH / COLS), 10 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        };
+                } else if (this.name == "Billiard room") {
+                        if (this.characters.indexOf(currentCharacter) > -1) {
+                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
+                                gridGraphics.stroke(0);
+                                gridGraphics.rect(3 * (GRID_WIDTH / COLS), 13 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        };
+                } else if (this.name == "Ballroom") {
+                        if (this.characters.indexOf(currentCharacter) > -1) {
+                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
+                                gridGraphics.stroke(0);
+                                gridGraphics.rect(10 * (GRID_WIDTH / COLS), 18 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        };
+                } else if (this.name == "Kitchen") {
+                        if (this.characters.indexOf(currentCharacter) > -1) {
+                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
+                                gridGraphics.stroke(0);
+                                gridGraphics.rect(18 * (GRID_WIDTH / COLS), 18 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        };
+                } else if (this.name == "Conservatory") {
+                        if (this.characters.indexOf(currentCharacter) > -1) {
+                                gridGraphics.fill(hold[currentCharacter].r, hold[currentCharacter].g, hold[currentCharacter].b);
+                                gridGraphics.stroke(0);
+                                gridGraphics.rect(3 * (GRID_WIDTH / COLS), 18 * (GRID_HEIGHT / ROWS), (GRID_WIDTH / COLS) - 1, (GRID_HEIGHT / ROWS) - 1);
+                        };
+                }
         };
 }
 // Load game assets
@@ -288,6 +335,14 @@ function startGame(players)
                 board[6][19].obstacle = true;
         }
         rooms[0] = new Room("Study", 0, 1, 5, 3);
+        rooms[1] = new Room("Hall", 1, 2, 9, 6, 12, 4);
+        rooms[2] = new Room("Lounge", 2, 1, 14, 5);
+        rooms[3] = new Room("Library", 3, 2, 6, 7, 1, 10);
+        rooms[4] = new Room("Dining room", 4, 2, 16, 7, 13, 9);
+        rooms[5] = new Room("Billiard room", 5, 2, 2, 10, 6, 13);
+        rooms[6] = new Room("Ballroom", 6, 2, 11, 13, 14, 15);
+        rooms[7] = new Room("Kitchen", 7, 1, 17, 14);
+        rooms[8] = new Room("Conservatory", 8, 1, 5, 17);
 }
 function generateBoard() 
 {
@@ -583,8 +638,43 @@ function mousePressed()
                 if (hold[currentCharacter].i > -1) {
                         if ( path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[x][y]) <= rollValue && board[x][y].obstacle == false && currentCharacter == clientCharacter && !movedPeice) {
                                 socket.emit('moveItem',currentCharacter, x, y);
-                        } else if (( x == 5 && y == 2) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[5][3]) <= rollValue - 1) { // Study
+                        // Study
+                        } else if (( x == 5 && y == 2) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[5][3]) <= rollValue - 1) { 
                                 socket.emit('enterRoom', currentCharacter, 'Study', 0);
+                        // Hall one
+                        } else if (( x == 9 && y == 5) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[9][6]) <= rollValue - 1) { 
+                                socket.emit('enterRoom', currentCharacter, 'Hall', 1);
+                        } else if (( x == 11 && y == 4) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[12][4]) <= rollValue - 1) {
+                                socket.emit('enterRoom', currentCharacter, 'Hall', 1);
+                        // Lounge
+                        } else if (( x == 14 && y == 4) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[14][5]) <= rollValue - 1) {
+                                socket.emit('enterRoom', currentCharacter, 'Lounge', 2);
+                        // Library
+                        } else if (( x == 5 && y == 7) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[6][7]) <= rollValue - 1) {
+                                socket.emit('enterRoom', currentCharacter, 'Library', 3);
+                        } else if (( x == 1 && y == 9) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[1][10]) <= rollValue - 1) { 
+                                socket.emit('enterRoom', currentCharacter, 'Library', 3);
+                        // Dining room
+                        } else if (( x == 16 && y == 8) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[16][7]) <= rollValue - 1) {
+                                socket.emit('enterRoom', currentCharacter, 'Dining room', 4);
+                        } else if (( x == 14 && y == 9) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[13][9]) <= rollValue - 1) {
+                                socket.emit('enterRoom', currentCharacter, 'Dining room', 4);
+                        // Billiard room
+                        } else if (( x == 2 && y == 11) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[2][10]) <= rollValue - 1) {
+                                socket.emit('enterRoom', currentCharacter, 'Billiard room', 5);
+                        } else if (( x == 6 && y == 12) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[6][13]) <= rollValue - 1) {
+                                socket.emit('enterRoom', currentCharacter, 'Billiard room', 5);
+                        // Ballroom
+                        } else if (( x == 11 && y == 14) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[11][13]) <= rollValue - 1) {
+                                socket.emit('enterRoom', currentCharacter, 'Ballroom', 6);
+                        } else if (( x == 13 && y == 15) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[14][15]) <= rollValue - 1) {
+                                socket.emit('enterRoom', currentCharacter, 'Ballroom', 6);
+                        // Kitchen
+                        } else if (( x == 17 && y == 15) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[17][14]) <= rollValue - 1) {
+                                socket.emit('enterRoom', currentCharacter, 'Kitchen', 7);
+                        // Conservatory
+                        } else if (( x == 5 && y == 18) && path(board[hold[currentCharacter].i][hold[currentCharacter].j] , board[5][17]) <= rollValue - 1) {
+                                socket.emit('enterRoom', currentCharacter, 'Conservatory', 8);
                         }
                 } else if (hold[currentCharacter].i == -1) {
                         var roomIndex = hold[currentCharacter].room;

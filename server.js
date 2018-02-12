@@ -207,7 +207,7 @@ var roomCards = ['Hall', 'Lounge', 'Dining room', 'Kitchen', 'Ballroom', 'Conser
 var cardsCollated = [];
 var hands = undefined;
 var playersOut = [""];
-const ROOM_CONST = 1;
+const ROOM_CONST = 2;
 var rooms = new Array(ROOM_CONST);
 // Objects
 function Cell(i, j) 
@@ -405,6 +405,14 @@ function startGame(players)
         // Send them to the clients
         updateDecks();
         rooms[0] = new Room("Study", 0, 1, 5, 3);
+        rooms[1] = new Room("Hall", 1, 2, 9, 6, 12, 4);
+        rooms[2] = new Room("Lounge", 2, 1, 14, 5);
+        rooms[3] = new Room("Library", 3, 2, 6, 7, 1, 10);
+        rooms[4] = new Room("Dining room", 4, 2, 16, 7, 13, 9);
+        rooms[5] = new Room("Billiard room", 5, 2, 2, 10, 6, 13);
+        rooms[6] = new Room("Ballroom", 6, 2, 11, 13, 14, 15);
+        rooms[7] = new Room("Kitchen", 7, 1, 17, 14);
+        rooms[8] = new Room("Conservatory", 8, 1, 5, 17);
 }
 function nextTurn()
 {
