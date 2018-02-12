@@ -207,7 +207,7 @@ var roomCards = ['Hall', 'Lounge', 'Dining room', 'Kitchen', 'Ballroom', 'Conser
 var cardsCollated = [];
 var hands = undefined;
 var playersOut = [""];
-const ROOM_CONST = 2;
+const ROOM_CONST = 9;
 var rooms = new Array(ROOM_CONST);
 // Objects
 function Cell(i, j) 
